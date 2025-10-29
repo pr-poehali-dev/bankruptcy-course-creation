@@ -198,7 +198,7 @@ export default function Index() {
               <div className="space-y-4 mb-8">
                 <div className="flex gap-3">
                   <Icon name="CheckCircle2" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <p className="text-muted-foreground">Более 500 успешно завершенных дел по банкротству физических лиц</p>
+                  <p className="text-muted-foreground">Более 500 успешно завершенных процедур по банкротству</p>
                 </div>
                 <div className="flex gap-3">
                   <Icon name="CheckCircle2" className="text-accent flex-shrink-0 mt-1" size={24} />
