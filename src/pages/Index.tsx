@@ -64,7 +64,7 @@ export default function Index() {
             </div>
             <div className="animate-scale-in">
               <img 
-                src="https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/aa8553f1-780b-4f45-b2be-4f94f33a603d.jpg"
+                src="https://cdn.poehali.dev/files/e186dd27-a565-441d-84b4-5de4ae30e95f.jpg"
                 alt="Голосова Валентина - арбитражный управляющий"
                 className="rounded-2xl shadow-2xl w-full object-cover"
               />
@@ -208,7 +208,7 @@ export default function Index() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <img 
-              src="https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/aa8553f1-780b-4f45-b2be-4f94f33a603d.jpg"
+              src="https://cdn.poehali.dev/files/e186dd27-a565-441d-84b4-5de4ae30e95f.jpg"
               alt="Голосова Валентина"
               className="rounded-2xl shadow-xl"
             />
@@ -335,7 +335,11 @@ export default function Index() {
                 </div>
               </div>
 
-              <Button size="lg" className="w-full bg-accent hover:bg-accent/90 text-primary font-bold text-lg py-6">
+              <Button 
+                size="lg" 
+                className="w-full bg-accent hover:bg-accent/90 text-primary font-bold text-lg py-6"
+                onClick={() => window.location.href = '/payment'}
+              >
                 Купить курс за 2 999 ₽
               </Button>
 
