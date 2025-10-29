@@ -241,7 +241,9 @@ export default function Index() {
               </div>
 
               <p className="text-lg text-muted-foreground italic border-l-4 border-accent pl-6">
-                "Я создала этот курс, чтобы помочь людям пройти процедуру банкротства самостоятельно, сэкономив на услугах юристов десятки тысяч рублей."
+                "Я создала этот курс, потому что вижу, как многие люди оказываются в безвыходной ситуации из-за долгов, но не имеют финансовой возможности обратиться к профессионалам.
+                <br /><br />
+                Моя цель - сделать процедуру банкротства доступной для каждого, кто в ней действительно нуждается."
               </p>
             </div>
           </div>
@@ -327,6 +329,10 @@ export default function Index() {
                   <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
                   <span>Обновления материалов бесплатно</span>
                 </div>
+                <div className="flex gap-3">
+                  <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
+                  <span>Чат с автором курса и другими участниками</span>
+                </div>
               </div>
 
               <Button size="lg" className="w-full bg-accent hover:bg-accent/90 text-primary font-bold text-lg py-6">
@@ -397,8 +403,20 @@ export default function Index() {
             </div>
           </div>
           <Separator className="mb-8 opacity-20" />
-          <div className="text-center opacity-60">
-            <p>© 2024 Голосова Валентина. Все права защищены.</p>
+          <div className="text-center space-y-4">
+            <div className="opacity-80">
+              <h5 className="font-semibold mb-2">Юридическая информация</h5>
+              <div className="flex flex-wrap justify-center gap-4 text-sm">
+                <a href="#" className="hover:text-accent transition underline">Договор оферты</a>
+                <span className="opacity-40">•</span>
+                <a href="#" className="hover:text-accent transition underline">Политика конфиденциальности</a>
+                <span className="opacity-40">•</span>
+                <a href="#" className="hover:text-accent transition underline">Реквизиты</a>
+              </div>
+            </div>
+            <div className="opacity-60">
+              <p>© 2024 Голосова Валентина. Все права защищены.</p>
+            </div>
           </div>
         </div>
       </footer>
