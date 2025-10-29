@@ -407,11 +407,11 @@ export default function Index() {
             <div className="opacity-80">
               <h5 className="font-semibold mb-2">Юридическая информация</h5>
               <div className="flex flex-wrap justify-center gap-4 text-sm">
-                <a href="#" className="hover:text-accent transition underline">Договор оферты</a>
+                <a href="/oferta" className="hover:text-accent transition underline">Договор оферты</a>
                 <span className="opacity-40">•</span>
-                <a href="#" className="hover:text-accent transition underline">Политика конфиденциальности</a>
+                <a href="/privacy" className="hover:text-accent transition underline">Политика конфиденциальности</a>
                 <span className="opacity-40">•</span>
-                <a href="#" className="hover:text-accent transition underline">Реквизиты</a>
+                <a href="/requisites" className="hover:text-accent transition underline">Реквизиты</a>
               </div>
             </div>
             <div className="opacity-60">
