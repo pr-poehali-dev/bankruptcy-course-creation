@@ -64,7 +64,7 @@ export default function Index() {
             </div>
             <div className="animate-scale-in">
               <img 
-                src="https://cdn.poehali.dev/files/e186dd27-a565-441d-84b4-5de4ae30e95f.jpg"
+                src="https://cdn.poehali.dev/files/5b793bd6-94c1-4b75-87c1-147071921202.JPG"
                 alt="Голосова Валентина - арбитражный управляющий"
                 className="rounded-2xl shadow-2xl w-full object-cover"
               />
