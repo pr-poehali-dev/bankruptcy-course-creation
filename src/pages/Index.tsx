@@ -73,6 +73,28 @@ export default function Index() {
         </div>
       </section>
 
+      <section className="py-20 px-4 bg-muted/20">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <Badge className="mb-4">Промо видео</Badge>
+            <h3 className="text-4xl md:text-5xl font-bold mb-6">Узнайте больше о курсе</h3>
+          </div>
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black">
+            <iframe
+              className="w-full h-full"
+              src=""
+              title="Промо видео курса"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+          <p className="text-center text-muted-foreground mt-6">
+            Посмотрите короткое видео о том, как курс поможет вам пройти процедуру банкротства
+          </p>
+        </div>
+      </section>
+
       <section id="about" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
@@ -206,7 +228,11 @@ export default function Index() {
                 </div>
                 <div className="flex gap-3">
                   <Icon name="CheckCircle2" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <p className="text-muted-foreground">Юридическое образование, кандидат юридических наук</p>
+                  <p className="text-muted-foreground">Высшее юридическое образование</p>
+                </div>
+                <div className="flex gap-3">
+                  <Icon name="CheckCircle2" className="text-accent flex-shrink-0 mt-1" size={24} />
+                  <p className="text-muted-foreground">Член НПС СОПАУ "Альянс Управляющих"</p>
                 </div>
                 <div className="flex gap-3">
                   <Icon name="CheckCircle2" className="text-accent flex-shrink-0 mt-1" size={24} />
@@ -226,7 +252,7 @@ export default function Index() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <Badge className="mb-4">Отзывы</Badge>
-            <h3 className="text-4xl md:text-5xl font-bold mb-6">Что говорят студенты</h3>
+            <h3 className="text-4xl md:text-5xl font-bold mb-6">Что говорят клиенты, которые приобрели курс</h3>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -332,11 +358,11 @@ export default function Index() {
           <div className="flex flex-wrap justify-center gap-4">
             <Button variant="outline" size="lg" className="gap-2">
               <Icon name="Mail" size={20} />
-              info@golosova.ru
+              HELP@банкрот.shop
             </Button>
             <Button variant="outline" size="lg" className="gap-2">
               <Icon name="Phone" size={20} />
-              +7 (999) 123-45-67
+              +7 966 165 56 08
             </Button>
             <Button variant="outline" size="lg" className="gap-2">
               <Icon name="MessageCircle" size={20} />
@@ -365,8 +391,8 @@ export default function Index() {
             <div>
               <h4 className="font-bold text-xl mb-4">Контакты</h4>
               <div className="space-y-2 opacity-80">
-                <div>info@golosova.ru</div>
-                <div>+7 (999) 123-45-67</div>
+                <div>HELP@банкрот.shop</div>
+                <div>+7 966 165 56 08</div>
               </div>
             </div>
           </div>
