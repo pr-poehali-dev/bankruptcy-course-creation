@@ -71,7 +71,7 @@ export default function Index() {
             </div>
             <div className="animate-scale-in">
               <img 
-                src="https://cdn.poehali.dev/files/5b793bd6-94c1-4b75-87c1-147071921202.JPG"
+                src="https://cdn.poehali.dev/files/bddaed2a-cd53-40bc-8c52-c6467fafdab8.png"
                 alt="Голосова Валентина - арбитражный управляющий"
                 className="rounded-2xl shadow-2xl w-full object-cover"
               />
@@ -215,7 +215,7 @@ export default function Index() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <img 
-              src="https://cdn.poehali.dev/files/e77a1df8-8af8-4d21-b8bc-ed9cd6482e64.JPEG"
+              src="https://cdn.poehali.dev/files/eb4c82ea-d617-419e-aaba-9a674a6bf6d2.png"
               alt="Голосова Валентина"
               className="rounded-2xl shadow-xl"
             />
