@@ -269,28 +269,40 @@ export default function Index() {
               {
                 name: "Анна М.",
                 text: "Благодаря курсу смогла самостоятельно подать на банкротство. Все понятно объяснено, шаблоны очень помогли!",
-                rating: 5
+                rating: 5,
+                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/e94c9cf5-0cb0-46e5-aa1f-ca5da51ec655.jpg"
               },
               {
                 name: "Дмитрий К.",
                 text: "Сэкономил более 100 000 рублей на услугах юристов. Курс окупился в 30 раз! Валентина - настоящий профессионал.",
-                rating: 5
+                rating: 5,
+                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/caae5cfe-45d4-41ac-a6fe-5771adbdfccf.jpg"
               },
               {
                 name: "Елена С.",
                 text: "Очень подробные видео, все разложено по полочкам. Боялась идти в суд, но после курса все страхи ушли.",
-                rating: 5
+                rating: 5,
+                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/4afd5dea-278c-47ad-8f11-54a6e7ea3bc6.jpg"
               }
             ].map((review, index) => (
               <Card key={index} className="border-2">
                 <CardContent className="pt-6">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Icon key={i} name="Star" className="text-accent fill-accent" size={20} />
-                    ))}
+                  <div className="flex items-center gap-4 mb-4">
+                    <img 
+                      src={review.avatar} 
+                      alt={review.name}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-accent/20"
+                    />
+                    <div>
+                      <p className="font-semibold text-lg">{review.name}</p>
+                      <div className="flex gap-1">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Icon key={i} name="Star" className="text-accent fill-accent" size={16} />
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-muted-foreground mb-4 italic">"{review.text}"</p>
-                  <p className="font-semibold">{review.name}</p>
+                  <p className="text-muted-foreground italic">"{review.text}"</p>
                 </CardContent>
               </Card>
             ))}
