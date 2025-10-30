@@ -264,7 +264,7 @@ export default function Index() {
             <h3 className="text-4xl md:text-5xl font-bold mb-6">Что говорят клиенты, которые приобрели курс</h3>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 name: "Анна М.",
@@ -283,6 +283,12 @@ export default function Index() {
                 text: "Очень подробные видео, все разложено по полочкам. Боялась идти в суд, но после курса все страхи ушли.",
                 rating: 5,
                 avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/4afd5dea-278c-47ad-8f11-54a6e7ea3bc6.jpg"
+              },
+              {
+                name: "Наталья П.",
+                text: "Это просто фантастика! Я без юридического образования и вообще в этом ничего не понимаю, и моё заявление приняли в суде с первого раза. Большое спасибо вам за курс!",
+                rating: 5,
+                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/adf371a4-7333-4c3e-acc5-d79c54f5acab.jpg"
               }
             ].map((review, index) => (
               <Card key={index} className="border-2">
