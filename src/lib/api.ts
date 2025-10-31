@@ -3,6 +3,7 @@ const API_BASE = {
   admin: 'https://functions.poehali.dev/94be9de0-6f48-41a7-98b1-708c24fb05ad',
   course: 'https://functions.poehali.dev/f4829fa5-9666-4f09-b7bf-a94c39f727b1',
   payment: 'https://functions.poehali.dev/b3f3dab4-093d-45bf-98cb-86512e00886b',
+  upload: 'https://functions.poehali.dev/93c0187f-a1dd-40e0-bf79-89dada66de86',
 };
 
 export const auth = {
@@ -143,4 +144,34 @@ export const payment = {
     const response = await fetch(`${API_BASE.payment}?action=status&payment_id=${paymentId}`);
     return response.json();
   },
+};
+
+export const uploadFile = async (token: string, data: {
+  fileName: string;
+  fileContent: string;
+  fileType: string;
+  title: string;
+  description: string;
+}) => {
+  const response = await fetch(API_BASE.upload, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const getFiles = async (token: string) => {
+  const response = await fetch(API_BASE.upload, {
+    headers: { 'X-Auth-Token': token },
+  });
+  return response.json();
+};
+
+export const deleteFile = async (token: string, fileId: number) => {
+  const response = await fetch(`${API_BASE.upload}?id=${fileId}`, {
+    method: 'DELETE',
+    headers: { 'X-Auth-Token': token },
+  });
+  return response.json();
 };

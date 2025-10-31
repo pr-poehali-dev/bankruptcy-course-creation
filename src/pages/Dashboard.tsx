@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { course } from '@/lib/api';
+import { course, getFiles } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -14,6 +14,17 @@ interface Material {
   title: string;
   file_url: string;
   file_type: string;
+}
+
+interface CourseFile {
+  id: number;
+  title: string;
+  description: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: string;
 }
 
 interface Lesson {
@@ -41,6 +52,7 @@ const Dashboard = () => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const [modules, setModules] = useState<Module[]>([]);
+  const [files, setFiles] = useState<CourseFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +63,7 @@ const Dashboard = () => {
     }
 
     loadCourseContent();
+    loadCourseFiles();
   }, [token, navigate]);
 
   const loadCourseContent = async () => {
@@ -86,6 +99,17 @@ const Dashboard = () => {
       loadCourseContent();
     } catch (err) {
       console.error('Error updating progress:', err);
+    }
+  };
+
+  const loadCourseFiles = async () => {
+    try {
+      const data = await getFiles(token!);
+      if (!data.error) {
+        setFiles(data.files || []);
+      }
+    } catch (err) {
+      console.error('Error loading files:', err);
     }
   };
 
@@ -163,6 +187,47 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {files.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="FileText" size={24} />
+                Материалы курса
+              </CardTitle>
+              <CardDescription>
+                Скачайте дополнительные материалы и документы
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3">
+                {files.map((file) => (
+                  <a
+                    key={file.id}
+                    href={file.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <Icon name="FileText" size={20} className="text-primary mt-1" />
+                    <div className="flex-1">
+                      <p className="font-semibold">{file.title}</p>
+                      {file.description && (
+                        <p className="text-sm text-muted-foreground mt-1">{file.description}</p>
+                      )}
+                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                        <span>{file.fileName}</span>
+                        <span>•</span>
+                        <span>{(file.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    </div>
+                    <Icon name="Download" size={18} className="text-muted-foreground" />
+                  </a>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="space-y-6">
           {modules.map((module) => (

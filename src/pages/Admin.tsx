@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { uploadFile, getFiles, deleteFile } from '@/lib/api';
 
 interface Module {
   id?: number;
@@ -31,6 +32,17 @@ interface Lesson {
   is_published: boolean;
 }
 
+interface CourseFile {
+  id: number;
+  title: string;
+  description: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: string;
+}
+
 const Admin = () => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
@@ -38,6 +50,8 @@ const Admin = () => {
   
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [files, setFiles] = useState<CourseFile[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [newModule, setNewModule] = useState<Module>({
     title: '',
     description: '',
@@ -61,6 +75,7 @@ const Admin = () => {
     }
     loadModules();
     loadLessons();
+    loadFiles();
   }, [token, user, navigate]);
 
   const loadModules = async () => {
@@ -125,6 +140,72 @@ const Admin = () => {
     }
   };
 
+  const loadFiles = async () => {
+    try {
+      const data = await getFiles(token!);
+      if (!data.error) {
+        setFiles(data.files || []);
+      }
+    } catch (err) {
+      console.error('Error loading files:', err);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const title = prompt('Название файла:', file.name);
+    if (!title) return;
+
+    const description = prompt('Описание файла (опционально):', '');
+
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result as string;
+        const fileContent = base64.split(',')[1];
+
+        const data = await uploadFile(token!, {
+          fileName: file.name,
+          fileContent,
+          fileType: file.type,
+          title,
+          description: description || '',
+        });
+
+        if (data.error) {
+          toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+        } else {
+          toast({ title: 'Успех', description: 'Файл загружен' });
+          loadFiles();
+        }
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err: any) {
+      toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteFile = async (fileId: number) => {
+    if (!confirm('Удалить этот файл?')) return;
+
+    try {
+      const data = await deleteFile(token!, fileId);
+      if (data.error) {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Успех', description: 'Файл удален' });
+        loadFiles();
+      }
+    } catch (err: any) {
+      toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10">
       <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
@@ -145,9 +226,10 @@ const Admin = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="modules" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="modules">Модули</TabsTrigger>
             <TabsTrigger value="lessons">Уроки</TabsTrigger>
+            <TabsTrigger value="files">Файлы</TabsTrigger>
           </TabsList>
 
           <TabsContent value="modules" className="space-y-6">
@@ -345,6 +427,84 @@ const Admin = () => {
                   })}
                   {lessons.length === 0 && (
                     <p className="text-center text-muted-foreground py-8">Уроков пока нет</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="files" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Загрузить файл</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                    <input
+                      type="file"
+                      id="file-upload"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                      accept=".pdf,.doc,.docx,.mp4,.mov,.avi"
+                      disabled={uploading}
+                    />
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <Icon name="Upload" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-lg font-medium mb-2">
+                        {uploading ? 'Загрузка...' : 'Нажмите для загрузки файла'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        PDF, DOC, DOCX, MP4, MOV, AVI
+                      </p>
+                    </label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Загруженные файлы ({files.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {files.map((file) => (
+                    <div key={file.id} className="p-4 border rounded-lg flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Icon name="FileText" size={20} className="text-primary" />
+                          <h3 className="font-semibold">{file.title}</h3>
+                        </div>
+                        {file.description && (
+                          <p className="text-sm text-muted-foreground mb-2">{file.description}</p>
+                        )}
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span>{file.fileName}</span>
+                          <span>{(file.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                          <span>{new Date(file.uploadedAt).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(file.fileUrl, '_blank')}
+                        >
+                          <Icon name="Download" size={16} />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteFile(file.id)}
+                        >
+                          <Icon name="Trash2" size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {files.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">Файлов пока нет</p>
                   )}
                 </div>
               </CardContent>
