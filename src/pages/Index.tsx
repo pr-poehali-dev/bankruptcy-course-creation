@@ -270,25 +270,25 @@ export default function Index() {
                 name: "Анна М.",
                 text: "Благодаря курсу смогла самостоятельно подать на банкротство. Все понятно объяснено, шаблоны очень помогли!",
                 rating: 5,
-                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/e94c9cf5-0cb0-46e5-aa1f-ca5da51ec655.jpg"
+                avatar: "https://cdn.poehali.dev/files/6501e5e4-be60-4295-a498-be64002d8f4c.jpg"
               },
               {
                 name: "Дмитрий К.",
                 text: "Сэкономил более 100 000 рублей на услугах юристов. Курс окупился в 30 раз! Валентина - настоящий профессионал.",
                 rating: 5,
-                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/caae5cfe-45d4-41ac-a6fe-5771adbdfccf.jpg"
+                avatar: "https://cdn.poehali.dev/files/1659f6e8-5891-4e52-b265-48b2d9874cec.jpg"
               },
               {
                 name: "Елена С.",
                 text: "Очень подробные видео, все разложено по полочкам. Боялась идти в суд, но после курса все страхи ушли.",
                 rating: 5,
-                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/4afd5dea-278c-47ad-8f11-54a6e7ea3bc6.jpg"
+                avatar: "https://cdn.poehali.dev/files/5401a266-6070-43e4-805e-f2f1abe515b5.jpg"
               },
               {
                 name: "Наталья П.",
                 text: "Это просто фантастика! Я без юридического образования и вообще в этом ничего не понимаю, и моё заявление приняли в суде с первого раза. Большое спасибо вам за курс!",
                 rating: 5,
-                avatar: "https://cdn.poehali.dev/projects/3cbf3eb2-6ebe-4076-b25e-fa4bab246773/files/adf371a4-7333-4c3e-acc5-d79c54f5acab.jpg"
+                avatar: "https://cdn.poehali.dev/files/613a3f47-7fb1-46ad-a222-ba746980e971.jpg"
               }
             ].map((review, index) => (
               <Card key={index} className="border-2">
