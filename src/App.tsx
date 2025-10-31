@@ -10,6 +10,7 @@ import Oferta from "./pages/Oferta";
 import Privacy from "./pages/Privacy";
 import Requisites from "./pages/Requisites";
 import Payment from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/requisites" element={<Requisites />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

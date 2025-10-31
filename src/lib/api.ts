@@ -2,6 +2,7 @@ const API_BASE = {
   auth: 'https://functions.poehali.dev/c499486b-a97c-4ff5-8905-0ccd7fddcf9d',
   admin: 'https://functions.poehali.dev/94be9de0-6f48-41a7-98b1-708c24fb05ad',
   course: 'https://functions.poehali.dev/f4829fa5-9666-4f09-b7bf-a94c39f727b1',
+  payment: 'https://functions.poehali.dev/b3f3dab4-093d-45bf-98cb-86512e00886b',
 };
 
 export const auth = {
@@ -124,6 +125,22 @@ export const course = {
         watch_time_seconds: watchTime 
       }),
     });
+    return response.json();
+  },
+};
+
+export const payment = {
+  createPayment: async (userId: number, amount: number, email: string, returnUrl: string) => {
+    const response = await fetch(`${API_BASE.payment}?action=create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, amount, email, return_url: returnUrl }),
+    });
+    return response.json();
+  },
+
+  checkStatus: async (paymentId: string) => {
+    const response = await fetch(`${API_BASE.payment}?action=status&payment_id=${paymentId}`);
     return response.json();
   },
 };

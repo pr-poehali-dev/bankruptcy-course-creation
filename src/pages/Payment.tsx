@@ -1,57 +1,121 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { payment } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Payment() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    name: '',
-    phone: ''
-  });
+  const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const paymentId = searchParams.get('payment_id');
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (paymentId) {
+      checkPaymentStatus(paymentId);
+    }
+  }, [paymentId]);
+
+  const checkPaymentStatus = async (id: string) => {
+    setCheckingPayment(true);
+    try {
+      const result = await payment.checkStatus(id);
+      if (result.paid) {
+        toast({
+          title: 'Оплата успешна!',
+          description: 'Доступ к курсу открыт. Переходим в личный кабинет...',
+        });
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        toast({
+          title: 'Ожидание оплаты',
+          description: 'Платеж еще не обработан. Попробуйте обновить страницу через минуту.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error checking payment:', error);
+    } finally {
+      setCheckingPayment(false);
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!user) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт для покупки курса',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
-      const response = await fetch('/api/payment/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          amount: 2999,
-          description: 'Курс "Банкротство физических лиц - самостоятельно"'
-        }),
-      });
+      const returnUrl = `${window.location.origin}/payment`;
+      const result = await payment.createPayment(user.id, 2999, user.email, returnUrl);
 
-      const data = await response.json();
-      
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (result.confirmation_url) {
+        window.location.href = result.confirmation_url;
       } else {
         throw new Error('Не удалось получить ссылку на оплату');
       }
-    } catch (error) {
-      console.error('Ошибка при создании платежа:', error);
-      alert('Произошла ошибка. Пожалуйста, попробуйте позже или свяжитесь с нами.');
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось создать платеж',
+        variant: 'destructive',
+      });
       setIsProcessing(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p>Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (checkingPayment) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+            <h3 className="text-xl font-bold mb-2">Проверка статуса оплаты</h3>
+            <p className="text-muted-foreground">Пожалуйста, подождите...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -69,7 +133,7 @@ export default function Payment() {
           <Badge className="mb-4">Оформление заказа</Badge>
           <h1 className="text-4xl font-bold mb-4">Оплата курса</h1>
           <p className="text-xl text-muted-foreground">
-            Заполните форму для безопасной оплаты через Robokassa
+            Безопасная оплата через ЮKassa
           </p>
         </div>
 
@@ -102,99 +166,55 @@ export default function Payment() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Email для доступа к курсу *
-                </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="example@mail.ru"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  На этот email придет доступ к курсу
-                </p>
+            <div className="space-y-4 mb-6">
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-3 mb-2">
+                  <Icon name="User" size={16} className="text-muted-foreground" />
+                  <span className="text-sm font-medium">Покупатель:</span>
+                </div>
+                <p className="text-sm ml-7">{user.full_name}</p>
+                <p className="text-sm ml-7 text-muted-foreground">{user.email}</p>
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
-                  Ваше имя *
-                </label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="Иван Иванов"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium mb-2">
-                  Телефон
-                </label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="+7 (___) ___-__-__"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Необязательно, но поможет связаться при проблемах
-                </p>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-                <div className="flex gap-3">
-                  <Icon name="Shield" className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
-                  <div>
-                    <p className="font-medium text-blue-900 mb-1">Безопасная оплата</p>
-                    <p className="text-blue-700">
-                      Оплата происходит через защищенную платежную систему Robokassa. 
-                      Мы не храним данные вашей карты.
-                    </p>
-                  </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm mb-6">
+              <div className="flex gap-3">
+                <Icon name="Shield" className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+                <div>
+                  <p className="font-medium text-blue-900 mb-1">Безопасная оплата</p>
+                  <p className="text-blue-700">
+                    Оплата происходит через защищенную платежную систему ЮKassa (Яндекс.Касса). 
+                    Мы не храним данные вашей карты.
+                  </p>
                 </div>
               </div>
+            </div>
 
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="w-full bg-accent hover:bg-accent/90 text-primary font-bold text-lg py-6"
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <Icon name="Loader2" className="animate-spin mr-2" size={20} />
-                    Подготовка к оплате...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="CreditCard" className="mr-2" size={20} />
-                    Перейти к оплате 2 999 ₽
-                  </>
-                )}
-              </Button>
+            <Button 
+              onClick={handlePayment}
+              size="lg" 
+              className="w-full bg-accent hover:bg-accent/90 text-primary font-bold text-lg py-6"
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <Icon name="Loader2" className="animate-spin mr-2" size={20} />
+                  Подготовка к оплате...
+                </>
+              ) : (
+                <>
+                  <Icon name="CreditCard" className="mr-2" size={20} />
+                  Перейти к оплате 2 999 ₽
+                </>
+              )}
+            </Button>
 
-              <p className="text-xs text-center text-muted-foreground">
-                Нажимая кнопку, вы соглашаетесь с{' '}
-                <a href="/oferta" className="underline hover:text-primary">договором оферты</a>
-                {' '}и{' '}
-                <a href="/privacy" className="underline hover:text-primary">политикой конфиденциальности</a>
-              </p>
-            </form>
+            <p className="text-xs text-center text-muted-foreground mt-4">
+              Нажимая кнопку, вы соглашаетесь с{' '}
+              <a href="/oferta" className="underline hover:text-primary">договором оферты</a>
+              {' '}и{' '}
+              <a href="/privacy" className="underline hover:text-primary">политикой конфиденциальности</a>
+            </p>
           </CardContent>
         </Card>
 
