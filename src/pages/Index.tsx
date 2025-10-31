@@ -215,7 +215,7 @@ export default function Index() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <img 
-              src="https://cdn.poehali.dev/files/eb4c82ea-d617-419e-aaba-9a674a6bf6d2.png"
+              src="https://cdn.poehali.dev/files/c4d81d00-b8ed-4563-a70d-fb71c0287993.png"
               alt="Голосова Валентина"
               className="rounded-2xl shadow-xl"
             />
