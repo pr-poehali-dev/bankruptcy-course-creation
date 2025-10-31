@@ -38,6 +38,7 @@ interface Lesson {
     watch_time_seconds: number;
   };
   materials: Material[];
+  files?: CourseFile[];
 }
 
 interface Module {
@@ -317,6 +318,40 @@ const Dashboard = () => {
                                 >
                                   <Icon name="Download" size={14} />
                                   {material.title}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {lesson.files && lesson.files.length > 0 && (
+                          <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                            <h5 className="font-semibold mb-3 flex items-center gap-2">
+                              <Icon name="FileText" size={18} className="text-primary" />
+                              Файлы к уроку
+                            </h5>
+                            <div className="space-y-2">
+                              {lesson.files.map((file) => (
+                                <a
+                                  key={file.id}
+                                  href={file.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors"
+                                >
+                                  <Icon name="FileText" size={18} className="text-primary mt-0.5" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-sm">{file.title}</p>
+                                    {file.description && (
+                                      <p className="text-xs text-muted-foreground mt-1">{file.description}</p>
+                                    )}
+                                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                      <span>{file.file_name}</span>
+                                      <span>•</span>
+                                      <span>{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
+                                    </div>
+                                  </div>
+                                  <Icon name="Download" size={16} className="text-primary" />
                                 </a>
                               ))}
                             </div>

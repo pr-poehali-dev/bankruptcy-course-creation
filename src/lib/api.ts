@@ -152,6 +152,8 @@ export const uploadFile = async (token: string, data: {
   fileType: string;
   title: string;
   description: string;
+  lessonId?: number;
+  moduleId?: number;
 }) => {
   const response = await fetch(API_BASE.upload, {
     method: 'POST',
@@ -161,8 +163,14 @@ export const uploadFile = async (token: string, data: {
   return response.json();
 };
 
-export const getFiles = async (token: string) => {
-  const response = await fetch(API_BASE.upload, {
+export const getFiles = async (token: string, lessonId?: number, moduleId?: number) => {
+  let url = API_BASE.upload;
+  const params = new URLSearchParams();
+  if (lessonId) params.append('lesson_id', lessonId.toString());
+  if (moduleId) params.append('module_id', moduleId.toString());
+  if (params.toString()) url += '?' + params.toString();
+  
+  const response = await fetch(url, {
     headers: { 'X-Auth-Token': token },
   });
   return response.json();

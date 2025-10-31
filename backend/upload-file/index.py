@@ -55,6 +55,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         file_type = body_data.get('fileType', 'application/pdf')
         title = body_data.get('title', file_name)
         description = body_data.get('description', '')
+        lesson_id = body_data.get('lessonId')
+        module_id = body_data.get('moduleId')
         
         if not file_name or not file_content:
             return {
@@ -82,8 +84,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
         cur.execute(
-            "INSERT INTO course_files (title, description, file_name, file_url, file_type, file_size, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id, title, file_url, uploaded_at",
-            (title, description, file_name, file_url, file_type, len(file_data), datetime.utcnow())
+            "INSERT INTO course_files (title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, file_url, uploaded_at",
+            (title, description, file_name, file_url, file_type, len(file_data), lesson_id, module_id, datetime.utcnow())
         )
         
         result = cur.fetchone()
@@ -103,12 +105,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     if method == 'GET':
+        query_params = event.get('queryStringParameters', {})
+        lesson_id = query_params.get('lesson_id')
+        module_id = query_params.get('module_id')
+        
         conn = psycopg2.connect(database_url)
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        cur.execute(
-            "SELECT id, title, description, file_name, file_url, file_type, file_size, uploaded_at FROM course_files ORDER BY uploaded_at DESC"
-        )
+        if lesson_id:
+            cur.execute(
+                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at FROM course_files WHERE lesson_id = %s ORDER BY uploaded_at DESC",
+                (lesson_id,)
+            )
+        elif module_id:
+            cur.execute(
+                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at FROM course_files WHERE module_id = %s ORDER BY uploaded_at DESC",
+                (module_id,)
+            )
+        else:
+            cur.execute(
+                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at FROM course_files ORDER BY uploaded_at DESC"
+            )
         
         files = cur.fetchall()
         cur.close()
@@ -124,6 +141,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'fileUrl': f['file_url'],
                 'fileType': f['file_type'],
                 'fileSize': f['file_size'],
+                'lessonId': f.get('lesson_id'),
+                'moduleId': f.get('module_id'),
                 'uploadedAt': f['uploaded_at'].isoformat()
             })
         

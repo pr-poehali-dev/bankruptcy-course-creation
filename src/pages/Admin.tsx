@@ -52,6 +52,8 @@ const Admin = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [files, setFiles] = useState<CourseFile[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState<number | undefined>();
+  const [selectedModule, setSelectedModule] = useState<number | undefined>();
   const [newModule, setNewModule] = useState<Module>({
     title: '',
     description: '',
@@ -173,6 +175,8 @@ const Admin = () => {
           fileType: file.type,
           title,
           description: description || '',
+          lessonId: selectedLesson,
+          moduleId: selectedModule,
         });
 
         if (data.error) {
@@ -440,6 +444,45 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="file-module">Прикрепить к модулю (опционально)</Label>
+                      <select
+                        id="file-module"
+                        className="w-full p-2 border rounded-md"
+                        value={selectedModule || ''}
+                        onChange={(e) => {
+                          setSelectedModule(e.target.value ? parseInt(e.target.value) : undefined);
+                          setSelectedLesson(undefined);
+                        }}
+                      >
+                        <option value="">Общие материалы</option>
+                        {modules.map((mod) => (
+                          <option key={mod.id} value={mod.id}>{mod.title}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    {selectedModule && (
+                      <div className="space-y-2">
+                        <Label htmlFor="file-lesson">Прикрепить к уроку (опционально)</Label>
+                        <select
+                          id="file-lesson"
+                          className="w-full p-2 border rounded-md"
+                          value={selectedLesson || ''}
+                          onChange={(e) => setSelectedLesson(e.target.value ? parseInt(e.target.value) : undefined)}
+                        >
+                          <option value="">Ко всему модулю</option>
+                          {lessons
+                            .filter((lesson) => lesson.module_id === selectedModule)
+                            .map((lesson) => (
+                              <option key={lesson.id} value={lesson.id}>{lesson.title}</option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="border-2 border-dashed rounded-lg p-8 text-center">
                     <input
                       type="file"
