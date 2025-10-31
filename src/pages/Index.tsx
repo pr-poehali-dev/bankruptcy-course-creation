@@ -9,10 +9,23 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleGetCourse = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
   };
 
   return (
@@ -28,9 +41,15 @@ export default function Index() {
             <button onClick={() => scrollToSection("reviews")} className="hover:text-accent transition">Отзывы</button>
             <button onClick={() => scrollToSection("price")} className="hover:text-accent transition">Стоимость</button>
           </div>
-          <Button onClick={() => scrollToSection("price")} className="bg-accent hover:bg-accent/90 text-primary font-semibold">
-            Купить курс
-          </Button>
+          {user ? (
+            <Button onClick={() => navigate('/dashboard')} className="bg-accent hover:bg-accent/90 text-primary font-semibold">
+              Мой курс
+            </Button>
+          ) : (
+            <Button onClick={handleGetCourse} className="bg-accent hover:bg-accent/90 text-primary font-semibold">
+              Войти
+            </Button>
+          )}
         </nav>
       </header>
 
@@ -47,8 +66,8 @@ export default function Index() {
                 Пошаговая инструкция по самостоятельной подаче на банкротство. Все документы, шаблоны и видеоуроки от арбитражного управляющего с опытом 10+ лет.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={() => scrollToSection("price")} size="lg" className="bg-accent hover:bg-accent/90 text-primary font-semibold text-lg px-8 py-6">
-                  Получить курс за 2 999 ₽
+                <Button onClick={handleGetCourse} size="lg" className="bg-accent hover:bg-accent/90 text-primary font-semibold text-lg px-8 py-6">
+                  {user ? 'Перейти к курсу' : 'Получить курс за 2 999 ₽'}
                 </Button>
                 <Button onClick={() => scrollToSection("program")} variant="outline" size="lg" className="text-lg px-8 py-6">
                   Узнать больше
