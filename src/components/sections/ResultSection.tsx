@@ -74,10 +74,19 @@ export default function ResultSection() {
         <div className={`mt-12 text-center bg-white rounded-2xl p-8 shadow-lg border-2 border-accent/20 opacity-0 ${resultAnimation.isVisible ? 'animate-fade-in-up delay-400' : ''}`}>
           <Icon name="TrendingUp" className="text-accent mx-auto mb-4" size={48} />
           <h4 className="text-2xl font-bold mb-4">С нами легко начать новую жизнь без долгов и переплат юристам</h4>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
             Процедура банкротства — это законный способ освободиться от финансовых обязательств. 
             С нашим курсом вы пройдёте весь путь самостоятельно и сэкономите на услугах юристов.
           </p>
+          <div className="bg-accent/10 border-2 border-accent/30 rounded-xl p-6 max-w-2xl mx-auto">
+            <p className="text-lg font-semibold text-primary mb-2">
+              💰 Экономия до 150 000 ₽
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Услуги юристов по банкротству стоят от 50 000 до 150 000 рублей. 
+              С нашим курсом вы пройдёте всю процедуру самостоятельно за 2 999 ₽.
+            </p>
+          </div>
         </div>
       </div>
     </section>
