@@ -63,7 +63,7 @@ export default function Index() {
                 <span className="block text-accent mt-2">без юристов</span>
               </h2>
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                Пошаговая инструкция по самостоятельной подаче на банкротство. Выберите формат самостоятельного банкротства без поддержки за 2 999 рублей или с личным юристом на каждом этапе +999 рублей.
+                Пошаговая инструкция по самостоятельной подаче на банкротство. Выберите формат самостоятельного банкротства за 2 999 рублей или с личным юристом на каждом этапе +999 рублей.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button onClick={() => user ? navigate('/dashboard') : scrollToSection('price')} size="lg" className="bg-accent hover:bg-accent/90 text-primary font-semibold text-lg px-8 py-6">
