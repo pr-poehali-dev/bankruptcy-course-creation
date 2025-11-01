@@ -332,12 +332,17 @@ const Dashboard = () => {
                             </h5>
                             <div className="space-y-2">
                               {lesson.files.map((file: any) => (
-                                <a
+                                <button
                                   key={file.id}
-                                  href={file.file_url || file.fileUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors"
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = file.file_url || file.fileUrl;
+                                    link.download = file.file_name || file.fileName || 'file.pdf';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                  }}
+                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors w-full text-left"
                                 >
                                   <Icon name="FileText" size={18} className="text-primary mt-0.5" />
                                   <div className="flex-1 min-w-0">
@@ -352,7 +357,7 @@ const Dashboard = () => {
                                     </div>
                                   </div>
                                   <Icon name="Download" size={16} className="text-primary" />
-                                </a>
+                                </button>
                               ))}
                             </div>
                           </div>
