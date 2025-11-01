@@ -578,7 +578,7 @@ export default function Index() {
                 <div className="space-y-3 mb-8">
                   <div className="flex gap-3">
                     <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
-                    <span className="text-sm">Всё из курса + личный юрист</span>
+                    <span className="text-sm">Ваш личный юрист</span>
                   </div>
                   <div className="flex gap-3">
                     <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
