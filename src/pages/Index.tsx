@@ -37,12 +37,12 @@ export default function Index() {
       <VideoSection />
       <FeaturesSection scrollToSection={scrollToSection} />
       <ResultSection />
-      <ChatSupportSection user={user} />
       <ProgramSection />
+      <PricingSection />
+      <ChatSupportSection user={user} />
       <AuthorSection />
       <ReviewsSection />
       <FAQSection />
-      <PricingSection />
       <ContactSection />
       <Footer />
     </div>
