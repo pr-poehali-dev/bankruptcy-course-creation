@@ -25,7 +25,8 @@ export default function Oferta() {
             <h2 className="text-2xl font-bold text-foreground mb-4">1. Общие положения</h2>
             <p>
               Настоящий документ является официальным предложением (публичной офертой) 
-              индивидуального предпринимателя Голосовой Валентины (далее - "Исполнитель") 
+              индивидуального предпринимателя Голосовой Валентины Александровны 
+              (ИНН 505198617330, ОГРНИП 322774600751927, далее - "Исполнитель") 
               заключить договор на оказание информационно-консультационных услуг 
               (далее - "Договор") на условиях, изложенных ниже.
             </p>
@@ -234,10 +235,45 @@ export default function Oferta() {
 
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-4">10. Реквизиты Исполнителя</h2>
-            <div className="bg-muted/30 p-6 rounded-lg">
-              <p className="font-semibold text-foreground">ИП Голосова Валентина</p>
-              <p>Email: HELP@банкрот.shop</p>
-              <p>Телефон: +7 966 165 56 08</p>
+            <div className="bg-muted/30 p-6 rounded-lg space-y-4">
+              <div>
+                <p className="font-semibold text-foreground text-lg mb-2">Индивидуальный предприниматель Голосова Валентина Александровна</p>
+                <p className="text-sm text-muted-foreground">Сокращенно: ИП Голосова В.А.</p>
+              </div>
+              
+              <Separator />
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">ИНН</p>
+                  <p className="text-sm">505198617330</p>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">ОГРНИП</p>
+                  <p className="text-sm">322774600751927</p>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-2">Контактная информация</p>
+                <p className="text-sm">Почтовый адрес: 119002, а/я 18, г. Москва</p>
+                <p className="text-sm">Телефон: +7 966 165 56 08</p>
+                <p className="text-sm">Email: Melni-v@yandex.ru</p>
+              </div>
+              
+              <Separator />
+              
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-2">Банковские реквизиты</p>
+                <div className="space-y-1 text-sm">
+                  <p><span className="font-medium">Банк:</span> ПАО Сбербанк</p>
+                  <p><span className="font-medium">Расчетный счет:</span> 40802810038000317332</p>
+                  <p><span className="font-medium">Корр. счет:</span> 30101810400000000225</p>
+                  <p><span className="font-medium">БИК:</span> 044525225</p>
+                </div>
+              </div>
             </div>
           </section>
 

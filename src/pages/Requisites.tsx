@@ -29,35 +29,35 @@ export default function Requisites() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div className="font-semibold text-muted-foreground">Полное наименование:</div>
-                  <div className="md:col-span-2">Индивидуальный предприниматель Голосова Валентина</div>
+                  <div className="md:col-span-2">Индивидуальный предприниматель Голосова Валентина Александровна</div>
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <div className="font-semibold text-muted-foreground">Сокращенное наименование:</div>
+                  <div className="md:col-span-2">ИП Голосова В.А.</div>
                 </div>
 
                 <Separator />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div className="font-semibold text-muted-foreground">ИНН:</div>
-                  <div className="md:col-span-2">____________</div>
+                  <div className="md:col-span-2">505198617330</div>
                 </div>
 
                 <Separator />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div className="font-semibold text-muted-foreground">ОГРНИП:</div>
-                  <div className="md:col-span-2">____________</div>
+                  <div className="md:col-span-2">322774600751927</div>
                 </div>
 
                 <Separator />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <div className="font-semibold text-muted-foreground">Юридический адрес:</div>
-                  <div className="md:col-span-2">____________</div>
-                </div>
-
-                <Separator />
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <div className="font-semibold text-muted-foreground">Фактический адрес:</div>
-                  <div className="md:col-span-2">____________</div>
+                  <div className="font-semibold text-muted-foreground">Почтовый адрес:</div>
+                  <div className="md:col-span-2">119002, а/я 18, г. Москва</div>
                 </div>
               </div>
             </CardContent>
@@ -69,29 +69,29 @@ export default function Requisites() {
               
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <div className="font-semibold text-muted-foreground">Расчетный счет:</div>
-                  <div className="md:col-span-2">____________</div>
-                </div>
-
-                <Separator />
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div className="font-semibold text-muted-foreground">Банк:</div>
-                  <div className="md:col-span-2">____________</div>
+                  <div className="md:col-span-2">ПАО Сбербанк</div>
                 </div>
 
                 <Separator />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <div className="font-semibold text-muted-foreground">БИК:</div>
-                  <div className="md:col-span-2">____________</div>
+                  <div className="font-semibold text-muted-foreground">Расчетный счет:</div>
+                  <div className="md:col-span-2 font-mono">40802810038000317332</div>
                 </div>
 
                 <Separator />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div className="font-semibold text-muted-foreground">Корр. счет:</div>
-                  <div className="md:col-span-2">____________</div>
+                  <div className="md:col-span-2 font-mono">30101810400000000225</div>
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <div className="font-semibold text-muted-foreground">БИК:</div>
+                  <div className="md:col-span-2 font-mono">044525225</div>
                 </div>
               </div>
             </CardContent>
@@ -106,7 +106,7 @@ export default function Requisites() {
                   <Icon name="Mail" className="text-accent" size={24} />
                   <div>
                     <div className="font-semibold">Email</div>
-                    <div className="text-muted-foreground">HELP@банкрот.shop</div>
+                    <div className="text-muted-foreground">Melni-v@yandex.ru</div>
                   </div>
                 </div>
 
@@ -140,9 +140,8 @@ export default function Requisites() {
                 <div>
                   <h3 className="font-semibold mb-2">Важная информация</h3>
                   <p className="text-muted-foreground text-sm">
-                    Для получения полных реквизитов, включая ИНН, ОГРНИП и банковские данные, 
-                    пожалуйста, свяжитесь с нами по электронной почте или телефону. 
-                    Реквизиты предоставляются по запросу для целей бухгалтерского учета и отчетности.
+                    Все реквизиты предоставлены выше. Для оформления документов и получения 
+                    бухгалтерских справок свяжитесь с нами по электронной почте или телефону.
                   </p>
                 </div>
               </div>
