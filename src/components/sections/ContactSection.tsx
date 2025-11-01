@@ -26,7 +26,12 @@ export default function ContactSection() {
             <Icon name="Mail" size={20} />
             HELP@банкрот.shop
           </Button>
-          <Button variant="outline" size="lg" className="gap-2">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="gap-2"
+            onClick={() => window.open('https://wa.me/79661655608', '_blank')}
+          >
             <Icon name="Phone" size={20} />
             +7 966 165 56 08
           </Button>
