@@ -90,7 +90,10 @@ export default function PricingSection() {
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-xs text-green-700 font-semibold flex items-center gap-2">
                   <Icon name="Shield" size={16} />
-                  💰 Гарантия возврата 100% в течение 7 дней
+                  💰 Гарантия возврата в течение 3 дней*
+                </p>
+                <p className="text-[10px] text-green-600 mt-1">
+                  *При просмотре менее 30% материалов курса
                 </p>
               </div>
 
@@ -154,7 +157,10 @@ export default function PricingSection() {
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-xs text-green-700 font-semibold flex items-center gap-2">
                   <Icon name="Shield" size={16} />
-                  💰 Гарантия возврата 100% в течение 7 дней
+                  💰 Гарантия возврата в течение 3 дней*
+                </p>
+                <p className="text-[10px] text-green-600 mt-1">
+                  *При просмотре менее 30% материалов курса
                 </p>
               </div>
 
@@ -215,7 +221,10 @@ export default function PricingSection() {
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-xs text-green-700 font-semibold flex items-center gap-2">
                   <Icon name="Shield" size={16} />
-                  💰 Гарантия возврата 100% в течение 7 дней
+                  💰 Гарантия возврата в течение 24 часов*
+                </p>
+                <p className="text-[10px] text-green-600 mt-1">
+                  *При отсутствии общения с юристом
                 </p>
               </div>
 
@@ -235,7 +244,7 @@ export default function PricingSection() {
                 Что если курс мне не подойдет?
               </p>
               <p className="text-sm opacity-90 pl-7">
-                Мы вернем 100% стоимости в течение 7 дней без вопросов. Просто напишите нам.
+                Вернем деньги в течение 3 дней, если вы просмотрели менее 30% материалов. Для чата — возврат в течение 24 часов при отсутствии общения с юристом.
               </p>
             </div>
             <div className="bg-white/5 rounded-lg p-4">
