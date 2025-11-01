@@ -17,6 +17,31 @@ export default function Payment() {
   const [checkingPayment, setCheckingPayment] = useState(false);
 
   const paymentId = searchParams.get('payment_id');
+  const serviceType = searchParams.get('type') || 'course';
+  
+  const serviceConfig = {
+    course: {
+      title: 'Курс "Банкротство физических лиц - самостоятельно"',
+      price: 2999,
+      features: [
+        '7 видеомодулей',
+        'Все шаблоны документов',
+        'Доступ навсегда'
+      ]
+    },
+    chat: {
+      title: 'Доступ к чату с юристами',
+      price: 999,
+      features: [
+        'Неограниченное количество вопросов',
+        'Ответы в течение дня',
+        'Доступ на 1 неделю',
+        'Сопровождение на каждом этапе'
+      ]
+    }
+  };
+  
+  const currentService = serviceConfig[serviceType as keyof typeof serviceConfig] || serviceConfig.course;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -71,7 +96,7 @@ export default function Payment() {
 
     try {
       const returnUrl = `${window.location.origin}/payment`;
-      const result = await payment.createPayment(user.id, 2999, user.email, returnUrl);
+      const result = await payment.createPayment(user.id, currentService.price, user.email, returnUrl);
 
       if (result.error) {
         throw new Error(result.error);
@@ -120,18 +145,36 @@ export default function Payment() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 py-12 max-w-2xl">
-        <Button 
-          variant="ghost" 
-          className="mb-6 gap-2"
-          onClick={() => navigate('/')}
-        >
-          <Icon name="ArrowLeft" size={20} />
-          Назад на главную
-        </Button>
+        <div className="flex justify-between items-center mb-6">
+          <Button 
+            variant="ghost" 
+            className="gap-2"
+            onClick={() => navigate('/')}
+          >
+            <Icon name="ArrowLeft" size={20} />
+            Назад на главную
+          </Button>
+          
+          {serviceType === 'course' ? (
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/payment?type=chat')}
+            >
+              Перейти к чату с юристами
+            </Button>
+          ) : (
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/payment')}
+            >
+              Перейти к курсу
+            </Button>
+          )}
+        </div>
 
         <div className="text-center mb-8">
           <Badge className="mb-4">Оформление заказа</Badge>
-          <h1 className="text-4xl font-bold mb-4">Оплата курса</h1>
+          <h1 className="text-4xl font-bold mb-4">Оплата услуги</h1>
           <p className="text-xl text-muted-foreground">
             Безопасная оплата через ЮKassa
           </p>
@@ -143,25 +186,19 @@ export default function Payment() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-bold mb-2">
-                    Курс "Банкротство физических лиц - самостоятельно"
+                    {currentService.title}
                   </h3>
                   <div className="space-y-2 text-sm text-muted-foreground">
-                    <div className="flex gap-2">
-                      <Icon name="Check" className="text-accent flex-shrink-0 mt-0.5" size={16} />
-                      <span>7 видеомодулей</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Icon name="Check" className="text-accent flex-shrink-0 mt-0.5" size={16} />
-                      <span>Все шаблоны документов</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Icon name="Check" className="text-accent flex-shrink-0 mt-0.5" size={16} />
-                      <span>Доступ навсегда</span>
-                    </div>
+                    {currentService.features.map((feature, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Icon name="Check" className="text-accent flex-shrink-0 mt-0.5" size={16} />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-primary">2 999 ₽</div>
+                  <div className="text-3xl font-bold text-primary">{currentService.price.toLocaleString('ru-RU')} ₽</div>
                 </div>
               </div>
             </div>
@@ -204,7 +241,7 @@ export default function Payment() {
               ) : (
                 <>
                   <Icon name="CreditCard" className="mr-2" size={20} />
-                  Перейти к оплате 2 999 ₽
+                  Перейти к оплате {currentService.price.toLocaleString('ru-RU')} ₽
                 </>
               )}
             </Button>

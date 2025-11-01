@@ -63,11 +63,11 @@ export default function Index() {
                 <span className="block text-accent mt-2">без юристов</span>
               </h2>
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                Пошаговая инструкция по самостоятельной подаче на банкротство. Все документы, шаблоны и видеоуроки от арбитражного управляющего с опытом 10+ лет.
+                Пошаговая инструкция по самостоятельной подаче на банкротство. Выберите обучение без поддержки или с личным юристом на каждом этапе.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={handleGetCourse} size="lg" className="bg-accent hover:bg-accent/90 text-primary font-semibold text-lg px-8 py-6">
-                  {user ? 'Перейти к курсу' : 'Получить курс за 2 999 ₽'}
+                <Button onClick={() => user ? navigate('/dashboard') : scrollToSection('price')} size="lg" className="bg-accent hover:bg-accent/90 text-primary font-semibold text-lg px-8 py-6">
+                  {user ? 'Перейти к курсу' : 'Выбрать услугу'}
                 </Button>
                 <Button onClick={() => scrollToSection("program")} variant="outline" size="lg" className="text-lg px-8 py-6">
                   Узнать больше
@@ -165,6 +165,89 @@ export default function Index() {
                 <p className="text-muted-foreground">
                   Детальные письменные инструкции с примерами и объяснениями
                 </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-4 bg-gradient-to-br from-accent/10 to-primary/5">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-accent/20 text-accent-foreground">Дополнительная поддержка</Badge>
+            <h3 className="text-4xl md:text-5xl font-bold mb-6">Чат с юристами</h3>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Если ваш случай сложнее и нужна профессиональная консультация — получите личного юриста
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon name="MessageCircle" className="text-accent" size={24} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold mb-2">Неограниченные вопросы</h4>
+                  <p className="text-muted-foreground">
+                    Задавайте сколько угодно вопросов в течение недели доступа
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon name="Clock" className="text-accent" size={24} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold mb-2">Быстрые ответы</h4>
+                  <p className="text-muted-foreground">
+                    Квалифицированные юристы отвечают в течение дня
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon name="RefreshCw" className="text-accent" size={24} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold mb-2">Гибкая покупка</h4>
+                  <p className="text-muted-foreground">
+                    Покупайте доступ когда нужно — на любом этапе процедуры
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon name="Shield" className="text-accent" size={24} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold mb-2">Сопровождение эксперта</h4>
+                  <p className="text-muted-foreground">
+                    Личный юрист проведет вас через все сложные моменты
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <Card className="border-2 border-accent">
+              <CardContent className="pt-8">
+                <div className="text-center mb-6">
+                  <div className="text-4xl font-bold mb-2">999 ₽</div>
+                  <p className="text-muted-foreground">За неделю доступа</p>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6 text-center">
+                  Идеально подходит для сложных случаев, когда нужна профессиональная помощь на определенном этапе
+                </p>
+                <Button 
+                  size="lg" 
+                  className="w-full bg-accent hover:bg-accent/90 text-primary font-bold"
+                  onClick={() => navigate('/payment?type=chat')}
+                >
+                  Получить доступ к чату
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -422,67 +505,128 @@ export default function Index() {
       </section>
 
       <section id="price" className="py-20 px-4 bg-gradient-to-b from-primary to-primary/90 text-white">
-        <div className="container mx-auto max-w-4xl text-center">
-          <Badge className="mb-4 bg-accent text-primary">Специальное предложение</Badge>
-          <h3 className="text-4xl md:text-5xl font-bold mb-6">Инвестиция в ваше будущее</h3>
-          <p className="text-xl mb-12 opacity-90">
-            Стоимость услуг юриста по банкротству - от 50 000 до 150 000 рублей
-          </p>
-
-          <Card className="max-w-lg mx-auto border-4 border-accent">
-            <CardContent className="pt-12 pb-12">
-              <div className="mb-8">
-                <div className="text-5xl font-bold mb-2">2 999 ₽</div>
-                <p className="text-muted-foreground">Полный доступ навсегда</p>
-              </div>
-
-              <Separator className="mb-8" />
-
-              <div className="space-y-3 text-left mb-8">
-                <div className="flex gap-3">
-                  <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <span>7 подробных видеомодулей</span>
-                </div>
-                <div className="flex gap-3">
-                  <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <span>Все шаблоны документов</span>
-                </div>
-                <div className="flex gap-3">
-                  <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <span>Пошаговые инструкции</span>
-                </div>
-                <div className="flex gap-3">
-                  <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <span>Доступ без ограничений по времени</span>
-                </div>
-                <div className="flex gap-3">
-                  <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <span>Обновления материалов бесплатно</span>
-                </div>
-                <div className="flex gap-3">
-                  <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={24} />
-                  <span>Чат с автором курса и другими участниками</span>
-                </div>
-              </div>
-
-              <Button 
-                size="lg" 
-                className="w-full bg-accent hover:bg-accent/90 text-primary font-bold text-lg py-6"
-                onClick={() => window.location.href = '/payment'}
-              >
-                Купить курс за 2 999 ₽
-              </Button>
-
-              <p className="text-sm text-muted-foreground mt-6">
-                Безопасная оплата • Мгновенный доступ
-              </p>
-            </CardContent>
-          </Card>
-
-          <div className="mt-12 max-w-2xl mx-auto">
-            <p className="text-lg opacity-90">
-              💡 Экономия более 50 000 рублей на услугах юристов
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-accent text-primary">Выберите подходящий вариант</Badge>
+            <h3 className="text-4xl md:text-5xl font-bold mb-6">Наши услуги</h3>
+            <p className="text-xl opacity-90">
+              Самостоятельное прохождение или с поддержкой юристов
             </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <Card className="border-2 hover:border-accent transition-all hover:shadow-2xl">
+              <CardContent className="pt-12 pb-12">
+                <div className="text-center mb-8">
+                  <Badge className="mb-4 bg-primary/10 text-primary">Самостоятельно</Badge>
+                  <div className="text-5xl font-bold mb-2 text-primary">2 999 ₽</div>
+                  <p className="text-muted-foreground">Доступ навсегда</p>
+                </div>
+
+                <Separator className="mb-8" />
+
+                <div className="space-y-3 mb-8">
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">7 подробных видеомодулей</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Все шаблоны документов</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Пошаговые инструкции</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Доступ без ограничений по времени</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Обновления материалов бесплатно</span>
+                  </div>
+                </div>
+
+                <Button 
+                  size="lg" 
+                  className="w-full bg-accent hover:bg-accent/90 text-primary font-bold py-6"
+                  onClick={() => window.location.href = '/payment'}
+                >
+                  Купить курс
+                </Button>
+
+                <p className="text-sm text-muted-foreground text-center mt-4">
+                  Для простых случаев банкротства
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-4 border-accent hover:shadow-2xl transition-all relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <Badge className="bg-accent text-primary font-bold px-6 py-1">Популярный выбор</Badge>
+              </div>
+              <CardContent className="pt-12 pb-12">
+                <div className="text-center mb-8">
+                  <Badge className="mb-4 bg-accent/20 text-accent border-accent">С юристом</Badge>
+                  <div className="text-5xl font-bold mb-2 text-primary">999 ₽</div>
+                  <p className="text-muted-foreground">Доступ на 1 неделю</p>
+                </div>
+
+                <Separator className="mb-8" />
+
+                <div className="space-y-3 mb-8">
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Всё из курса + личный юрист</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Чат с квалифицированными юристами</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Неограниченное количество вопросов</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Ответы в течение дня</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Сопровождение на каждом этапе</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Можно продлить в любой момент</span>
+                  </div>
+                </div>
+
+                <Button 
+                  size="lg" 
+                  className="w-full bg-accent hover:bg-accent/90 text-primary font-bold py-6"
+                  onClick={() => window.location.href = '/payment?type=chat'}
+                >
+                  Купить доступ к чату
+                </Button>
+
+                <p className="text-sm text-muted-foreground text-center mt-4">
+                  Для сложных случаев с юридической поддержкой
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-12 text-center max-w-3xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+              <Icon name="Info" className="mx-auto mb-4 text-accent" size={32} />
+              <p className="text-lg opacity-90 mb-2">
+                💡 Доступ к чату с юристами можно приобретать многократно
+              </p>
+              <p className="text-sm opacity-75">
+                Если вопросы возникнут через месяц или на другом этапе — просто купите новый недельный доступ за 999 ₽
+              </p>
+            </div>
           </div>
         </div>
       </section>
