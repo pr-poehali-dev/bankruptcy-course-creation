@@ -87,12 +87,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         file_data = base64.b64decode(file_content)
         
+        # Upload to S3
+        aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+        aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        
+        if not aws_access_key or not aws_secret_key:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'S3 credentials not configured'})
+            }
+        
+        s3_client = boto3.client(
+            's3',
+            endpoint_url='https://storage.yandexcloud.net',
+            aws_access_key_id=aws_access_key,
+            aws_secret_access_key=aws_secret_key,
+            region_name='ru-central1'
+        )
+        
+        bucket_name = 'poehalidev-user-files'
+        file_key = f'course-files/{uuid.uuid4()}/{file_name}'
+        
+        try:
+            s3_client.put_object(
+                Bucket=bucket_name,
+                Key=file_key,
+                Body=file_data,
+                ContentType=file_type
+            )
+        except ClientError as e:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'S3 upload failed: {str(e)}'})
+            }
+        
+        file_url = f'https://storage.yandexcloud.net/{bucket_name}/{file_key}'
+        
         conn = psycopg2.connect(database_url)
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
         cur.execute(
-            "INSERT INTO course_files (title, description, file_name, file_type, file_size, file_data, lesson_id, module_id, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, uploaded_at",
-            (title, description, file_name, file_type, len(file_data), psycopg2.Binary(file_data), lesson_id, module_id, datetime.utcnow())
+            "INSERT INTO course_files (title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, file_url, uploaded_at",
+            (title, description, file_name, file_url, file_type, len(file_data), lesson_id, module_id, datetime.utcnow())
         )
         
         result = cur.fetchone()
@@ -106,6 +144,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({
                 'id': result['id'],
                 'title': result['title'],
+                'url': result['file_url'],
                 'uploadedAt': result['uploaded_at'].isoformat()
             })
         }
@@ -121,41 +160,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if file_id:
             cur.execute(
-                "SELECT file_name, file_type, file_data FROM course_files WHERE id = %s",
+                "SELECT file_name, file_url FROM course_files WHERE id = %s",
                 (file_id,)
             )
             file_record = cur.fetchone()
             cur.close()
             conn.close()
             
-            if not file_record:
+            if not file_record or not file_record['file_url']:
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': 'File not found'})
                 }
             
-            if file_record['file_data']:
-                file_bytes = bytes(file_record['file_data'])
-                base64_content = base64.b64encode(file_bytes).decode('utf-8')
-                
-                return {
-                    'statusCode': 200,
-                    'headers': {
-                        'Content-Type': file_record['file_type'],
-                        'Content-Disposition': f'attachment; filename="{file_record["file_name"]}"',
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Expose-Headers': 'Content-Disposition'
-                    },
-                    'isBase64Encoded': True,
-                    'body': base64_content
-                }
-            else:
-                return {
-                    'statusCode': 404,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'File data not found'})
-                }
+            return {
+                'statusCode': 302,
+                'headers': {
+                    'Location': file_record['file_url'],
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': ''
+            }
         
         if lesson_id:
             cur.execute(
