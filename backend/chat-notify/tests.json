@@ -1,0 +1,10 @@
+{
+  "tests": [
+    {
+      "name": "Send notifications to expiring clients",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

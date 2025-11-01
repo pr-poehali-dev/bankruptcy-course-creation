@@ -55,6 +55,7 @@ const ChatAccess = () => {
 
   const API_URL = 'https://functions.poehali.dev/7001345f-b7d4-48c6-8f16-19213c0e4b08';
   const EXPIRE_CHECK_URL = 'https://functions.poehali.dev/300236fb-71e2-46cf-beb7-284c45ce7a53';
+  const NOTIFY_URL = 'https://functions.poehali.dev/002375a1-91ef-4076-9822-c2342937fb42';
 
   const loadClients = async () => {
     setLoading(true);
@@ -197,6 +198,35 @@ const ChatAccess = () => {
     }
   };
 
+  const sendNotifications = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(NOTIFY_URL);
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({
+          title: 'Уведомления отправлены',
+          description: `Отправлено: ${data.notifications_sent}, Не удалось: ${data.notifications_failed}`,
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось отправить уведомления',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка соединения с сервером',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadClients();
   }, []);
@@ -225,6 +255,10 @@ const ChatAccess = () => {
             <p className="text-gray-600 mt-2">Контроль клиентов с оплаченным доступом к чату юристов</p>
           </div>
           <div className="flex gap-3">
+            <Button onClick={sendNotifications} variant="outline" disabled={loading}>
+              <Icon name="Bell" className="mr-2 h-4 w-4" />
+              Отправить уведомления
+            </Button>
             <Button onClick={checkExpired} variant="outline">
               <Icon name="RefreshCw" className="mr-2 h-4 w-4" />
               Проверить истёкшие
