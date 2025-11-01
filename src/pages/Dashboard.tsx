@@ -332,47 +332,11 @@ const Dashboard = () => {
                             </h5>
                             <div className="space-y-2">
                               {lesson.files.map((file: any) => (
-                                <button
+                                <a
                                   key={file.id}
-                                  onClick={() => {
-                                    try {
-                                      const fileUrl = file.file_url || file.fileUrl;
-                                      const fileName = file.file_name || file.fileName || 'file.pdf';
-                                      
-                                      if (fileUrl.startsWith('data:')) {
-                                        const byteString = atob(fileUrl.split(',')[1]);
-                                        const mimeString = fileUrl.split(',')[0].split(':')[1].split(';')[0];
-                                        const ab = new ArrayBuffer(byteString.length);
-                                        const ia = new Uint8Array(ab);
-                                        for (let i = 0; i < byteString.length; i++) {
-                                          ia[i] = byteString.charCodeAt(i);
-                                        }
-                                        const blob = new Blob([ab], { type: mimeString });
-                                        const blobUrl = URL.createObjectURL(blob);
-                                        
-                                        const link = document.createElement('a');
-                                        link.href = blobUrl;
-                                        link.download = fileName;
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
-                                        
-                                        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-                                      } else {
-                                        const link = document.createElement('a');
-                                        link.href = fileUrl;
-                                        link.download = fileName;
-                                        link.target = '_blank';
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
-                                      }
-                                    } catch (error) {
-                                      console.error('Ошибка при скачивании файла:', error);
-                                      alert('Не удалось скачать файл. Попробуйте еще раз.');
-                                    }
-                                  }}
-                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors w-full text-left"
+                                  href={`https://functions.poehali.dev/93c0187f-a1dd-40e0-bf79-89dada66de86?file_id=${file.id}`}
+                                  download={file.file_name || file.fileName || 'file.pdf'}
+                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors"
                                 >
                                   <Icon name="FileText" size={18} className="text-primary mt-0.5" />
                                   <div className="flex-1 min-w-0">
@@ -387,7 +351,7 @@ const Dashboard = () => {
                                     </div>
                                   </div>
                                   <Icon name="Download" size={16} className="text-primary" />
-                                </button>
+                                </a>
                               ))}
                             </div>
                           </div>

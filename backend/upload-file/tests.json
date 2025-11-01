@@ -16,6 +16,12 @@
       "bodyMatcher": "partial"
     },
     {
+      "name": "Get file without file_id",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401
+    },
+    {
       "name": "OPTIONS request for CORS",
       "method": "OPTIONS",
       "path": "/",

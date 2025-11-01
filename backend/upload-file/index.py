@@ -114,12 +114,53 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     if method == 'GET':
-        query_params = event.get('queryStringParameters', {})
+        query_params = event.get('queryStringParameters', {}) or {}
+        file_id = query_params.get('file_id')
         lesson_id = query_params.get('lesson_id')
         module_id = query_params.get('module_id')
         
         conn = psycopg2.connect(database_url)
         cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        if file_id:
+            cur.execute(
+                "SELECT file_name, file_url, file_type FROM course_files WHERE id = %s",
+                (file_id,)
+            )
+            file_data = cur.fetchone()
+            cur.close()
+            conn.close()
+            
+            if not file_data:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'File not found'})
+                }
+            
+            if file_data['file_url'].startswith('data:'):
+                base64_content = file_data['file_url'].split(',')[1]
+                file_bytes = base64.b64decode(base64_content)
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': file_data['file_type'],
+                        'Content-Disposition': f'attachment; filename="{file_data["file_name"]}"',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'isBase64Encoded': True,
+                    'body': base64.b64encode(file_bytes).decode('utf-8')
+                }
+            else:
+                return {
+                    'statusCode': 302,
+                    'headers': {
+                        'Location': file_data['file_url'],
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': ''
+                }
         
         if lesson_id:
             cur.execute(
