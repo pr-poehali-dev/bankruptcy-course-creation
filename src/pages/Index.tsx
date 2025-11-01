@@ -133,7 +133,7 @@ export default function Index() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="border-2 hover:border-accent transition-all hover:shadow-lg">
               <CardContent className="pt-8">
                 <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mb-6">
@@ -167,6 +167,24 @@ export default function Index() {
                 <p className="text-muted-foreground">
                   Детальные письменные инструкции с примерами и объяснениями
                 </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-primary/30 hover:border-primary transition-all hover:shadow-lg bg-gradient-to-br from-primary/5 to-white">
+              <CardContent className="pt-8">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                  <Icon name="ShieldCheck" className="text-primary" size={32} />
+                </div>
+                <h4 className="text-2xl font-bold mb-4">Проверка юристами</h4>
+                <p className="text-muted-foreground mb-4">
+                  При покупке сопровождения — профессиональная проверка ваших документов
+                </p>
+                <button 
+                  onClick={() => scrollToSection('price')} 
+                  className="text-primary hover:text-accent font-semibold text-sm flex items-center gap-1 transition-colors"
+                >
+                  Подробнее <Icon name="ArrowRight" size={16} />
+                </button>
               </CardContent>
             </Card>
           </div>
