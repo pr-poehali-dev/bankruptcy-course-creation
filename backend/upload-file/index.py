@@ -87,24 +87,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         file_data = base64.b64decode(file_content)
         
-        s3_client = boto3.client(
-            's3',
-            endpoint_url='https://storage.yandexcloud.net',
-            aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
-            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-            region_name='ru-central1'
-        )
-        bucket_name = 'poehalidev-user-files'
-        file_key = f'files/{uuid.uuid4()}-{file_name}'
-        
-        s3_client.put_object(
-            Bucket=bucket_name,
-            Key=file_key,
-            Body=file_data,
-            ContentType=file_type
-        )
-        
-        file_url = f'https://storage.yandexcloud.net/{bucket_name}/{file_key}'
+        file_url = f'data:{file_type};base64,{file_content}'
         
         conn = psycopg2.connect(database_url)
         cur = conn.cursor(cursor_factory=RealDictCursor)
