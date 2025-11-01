@@ -95,6 +95,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
         aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
         
+        print(f"AWS Key exists: {bool(aws_access_key)}, Secret exists: {bool(aws_secret_key)}")
+        if aws_access_key:
+            print(f"AWS Key starts with: {aws_access_key[:10]}...")
+        
         if not aws_access_key or not aws_secret_key:
             return {
                 'statusCode': 500,
