@@ -111,8 +111,8 @@ export default function PricingSection() {
               <div className="text-center mb-8">
                 <Badge className="mb-4 bg-green-100 text-green-700 border-green-300">Комбо-пакет</Badge>
                 <div className="flex items-center justify-center gap-3 mb-2">
-                  <span className="text-2xl text-muted-foreground line-through">3 998 ₽</span>
-                  <span className="text-5xl font-bold text-green-600">3 499 ₽</span>
+                  <span className="text-2xl text-muted-foreground line-through whitespace-nowrap">3 998 ₽</span>
+                  <span className="text-5xl font-bold text-green-600 whitespace-nowrap">3 499 ₽</span>
                 </div>
                 <p className="text-muted-foreground">Курс + Месяц чата</p>
               </div>
