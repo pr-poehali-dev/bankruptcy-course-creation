@@ -125,8 +125,12 @@ def get_course_content(user: Dict[str, Any], event: Dict[str, Any], headers: Dic
                 cur.execute("SELECT * FROM materials WHERE module_id = %s AND lesson_id IS NULL", (module['id'],))
                 module_materials = cur.fetchall()
                 
+                cur.execute("SELECT id, title, description, file_name, file_url, file_type, file_size FROM course_files WHERE module_id = %s AND lesson_id IS NULL ORDER BY uploaded_at DESC", (module['id'],))
+                module_files = cur.fetchall()
+                
                 module_dict['lessons'] = lessons_with_progress
                 module_dict['materials'] = [dict(m) for m in module_materials]
+                module_dict['files'] = [dict(f) for f in module_files]
                 result.append(module_dict)
             
             return {

@@ -25,6 +25,8 @@ interface CourseFile {
   fileType: string;
   fileSize: number;
   uploadedAt: string;
+  moduleId?: number;
+  lessonId?: number;
 }
 
 interface Lesson {
@@ -47,6 +49,7 @@ interface Module {
   description: string;
   lessons: Lesson[];
   materials: Material[];
+  files?: CourseFile[];
 }
 
 const Dashboard = () => {
@@ -189,20 +192,20 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {files.length > 0 && (
+        {files.filter(f => !f.moduleId && !f.lessonId).length > 0 && (
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Icon name="FileText" size={24} />
-                Материалы курса
+                Общие материалы курса
               </CardTitle>
               <CardDescription>
-                Скачайте дополнительные материалы и документы
+                Дополнительные материалы и документы для всего курса
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3">
-                {files.map((file) => (
+                {files.filter(f => !f.moduleId && !f.lessonId).map((file) => (
                   <a
                     key={file.id}
                     href={file.fileUrl}
@@ -241,7 +244,7 @@ const Dashboard = () => {
                 <CardDescription>{module.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                {module.materials.length > 0 && (
+                {(module.materials.length > 0 || (module.files && module.files.length > 0)) && (
                   <div className="mb-4 p-4 bg-muted/50 rounded-lg">
                     <h4 className="font-semibold mb-2 flex items-center gap-2">
                       <Icon name="FileText" size={18} />
@@ -258,6 +261,29 @@ const Dashboard = () => {
                         >
                           <Icon name="Download" size={14} />
                           {material.title}
+                        </a>
+                      ))}
+                      {module.files && module.files.map((file) => (
+                        <a
+                          key={file.id}
+                          href={file.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-start gap-2 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                        >
+                          <Icon name="FileText" size={18} className="text-primary mt-1" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm">{file.title}</p>
+                            {file.description && (
+                              <p className="text-xs text-muted-foreground mt-0.5">{file.description}</p>
+                            )}
+                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                              <span className="truncate">{file.fileName}</span>
+                              <span>•</span>
+                              <span>{(file.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+                            </div>
+                          </div>
+                          <Icon name="Download" size={16} className="text-muted-foreground flex-shrink-0" />
                         </a>
                       ))}
                     </div>
