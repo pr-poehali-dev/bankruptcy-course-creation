@@ -12,6 +12,7 @@ import ReviewsSection from "@/components/sections/ReviewsSection";
 import FAQSection from "@/components/sections/FAQSection";
 import PricingSection from "@/components/sections/PricingSection";
 import ContactSection from "@/components/sections/ContactSection";
+import Footer from "@/components/sections/Footer";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ export default function Index() {
       <FAQSection />
       <PricingSection />
       <ContactSection />
+      <Footer />
     </div>
   );
 }
