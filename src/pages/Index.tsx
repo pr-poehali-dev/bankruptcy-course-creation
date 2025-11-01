@@ -13,6 +13,7 @@ import FAQSection from "@/components/sections/FAQSection";
 import PricingSection from "@/components/sections/PricingSection";
 import ContactSection from "@/components/sections/ContactSection";
 import Footer from "@/components/sections/Footer";
+import QuickTestimonialsSection from "@/components/sections/QuickTestimonialsSection";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export default function Index() {
     <div className="min-h-screen bg-gradient-to-b from-white to-muted/30">
       <Header user={user} scrollToSection={scrollToSection} handleGetCourse={handleGetCourse} />
       <HeroSection user={user} scrollToSection={scrollToSection} />
+      <QuickTestimonialsSection />
       <VideoSection />
       <FeaturesSection scrollToSection={scrollToSection} />
       <ResultSection />
