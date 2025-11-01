@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/accordion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export default function Index() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const resultAnimation = useScrollAnimation();
   
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -172,7 +174,7 @@ export default function Index() {
       </section>
 
       <section className="py-20 px-4 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-6xl" ref={resultAnimation.ref}>
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary/20 text-primary">Результат</Badge>
             <h3 className="text-4xl md:text-5xl font-bold mb-6">Вы по шагам подали заявление на банкротство</h3>
@@ -182,7 +184,7 @@ export default function Index() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="border-2 border-primary/20 hover:border-primary transition-all hover:shadow-xl bg-white">
+            <Card className={`border-2 border-primary/20 hover:border-primary transition-all hover:shadow-xl bg-white opacity-0 ${resultAnimation.isVisible ? 'animate-fade-in-up' : ''}`}>
               <CardContent className="pt-6 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <Icon name="ClipboardCheck" className="text-primary" size={32} />
@@ -195,7 +197,7 @@ export default function Index() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-primary/20 hover:border-primary transition-all hover:shadow-xl bg-white">
+            <Card className={`border-2 border-primary/20 hover:border-primary transition-all hover:shadow-xl bg-white opacity-0 ${resultAnimation.isVisible ? 'animate-fade-in-up delay-100' : ''}`}>
               <CardContent className="pt-6 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <Icon name="FileSignature" className="text-primary" size={32} />
@@ -208,7 +210,7 @@ export default function Index() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-primary/20 hover:border-primary transition-all hover:shadow-xl bg-white">
+            <Card className={`border-2 border-primary/20 hover:border-primary transition-all hover:shadow-xl bg-white opacity-0 ${resultAnimation.isVisible ? 'animate-fade-in-up delay-200' : ''}`}>
               <CardContent className="pt-6 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <Icon name="Scale" className="text-primary" size={32} />
@@ -221,7 +223,7 @@ export default function Index() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-accent/40 hover:border-accent transition-all hover:shadow-xl bg-gradient-to-br from-accent/10 to-white">
+            <Card className={`border-2 border-accent/40 hover:border-accent transition-all hover:shadow-xl bg-gradient-to-br from-accent/10 to-white opacity-0 ${resultAnimation.isVisible ? 'animate-fade-in-up delay-300' : ''}`}>
               <CardContent className="pt-6 text-center">
                 <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <Icon name="PartyPopper" className="text-accent" size={32} />
@@ -235,7 +237,7 @@ export default function Index() {
             </Card>
           </div>
 
-          <div className="mt-12 text-center bg-white rounded-2xl p-8 shadow-lg border-2 border-accent/20">
+          <div className={`mt-12 text-center bg-white rounded-2xl p-8 shadow-lg border-2 border-accent/20 opacity-0 ${resultAnimation.isVisible ? 'animate-fade-in-up delay-400' : ''}`}>
             <Icon name="TrendingUp" className="text-accent mx-auto mb-4" size={48} />
             <h4 className="text-2xl font-bold mb-4">Начните новую жизнь без долгов</h4>
             <p className="text-muted-foreground max-w-2xl mx-auto">
