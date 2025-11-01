@@ -140,17 +140,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if file_data['file_url'].startswith('data:'):
                 base64_content = file_data['file_url'].split(',')[1]
-                file_bytes = base64.b64decode(base64_content)
                 
                 return {
                     'statusCode': 200,
                     'headers': {
                         'Content-Type': file_data['file_type'],
                         'Content-Disposition': f'attachment; filename="{file_data["file_name"]}"',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Expose-Headers': 'Content-Disposition'
                     },
                     'isBase64Encoded': True,
-                    'body': base64.b64encode(file_bytes).decode('utf-8')
+                    'body': base64_content
                 }
             else:
                 return {
