@@ -24,7 +24,7 @@ export default function ContactSection() {
           </Button>
           <Button variant="outline" size="lg" className="gap-2">
             <Icon name="Mail" size={20} />
-            HELP@банкрот.shop
+            v89661655608@gmail.com
           </Button>
           <Button 
             variant="outline" 

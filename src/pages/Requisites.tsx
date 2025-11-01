@@ -106,7 +106,7 @@ export default function Requisites() {
                   <Icon name="Mail" className="text-accent" size={24} />
                   <div>
                     <div className="font-semibold">Email</div>
-                    <div className="text-muted-foreground">Melni-v@yandex.ru</div>
+                    <div className="text-muted-foreground">v89661655608@gmail.com</div>
                   </div>
                 </div>
 
