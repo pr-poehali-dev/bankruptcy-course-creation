@@ -13,6 +13,15 @@ export default function ContactSection() {
         </p>
 
         <div className="flex flex-wrap justify-center gap-4">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="gap-2"
+            onClick={() => window.open('https://t.me/crashbusiness', '_blank')}
+          >
+            <Icon name="Send" size={20} />
+            Telegram
+          </Button>
           <Button variant="outline" size="lg" className="gap-2">
             <Icon name="Mail" size={20} />
             HELP@банкрот.shop

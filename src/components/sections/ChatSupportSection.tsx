@@ -86,7 +86,11 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
               <div className="text-sm text-muted-foreground mb-4">
                 Стоимость обсуждается индивидуально
               </div>
-              <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-white">
+              <Button 
+                variant="outline" 
+                className="w-full border-primary text-primary hover:bg-primary hover:text-white"
+                onClick={() => window.open('https://t.me/crashbusiness', '_blank')}
+              >
                 Связаться с нами
               </Button>
             </CardContent>
