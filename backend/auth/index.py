@@ -80,6 +80,7 @@ def register_user(data: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, An
     email = data.get('email')
     password = data.get('password')
     full_name = data.get('full_name')
+    telegram_username = data.get('telegram_username', '').strip()
     
     if not email or not password or not full_name:
         return {
@@ -94,8 +95,8 @@ def register_user(data: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, An
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "INSERT INTO users (email, password_hash, full_name) VALUES (%s, %s, %s) RETURNING id, email, full_name, is_admin, created_at",
-                (email, password_hash, full_name)
+                "INSERT INTO users (email, password_hash, full_name, telegram_username) VALUES (%s, %s, %s, %s) RETURNING id, email, full_name, is_admin, created_at",
+                (email, password_hash, full_name, telegram_username if telegram_username else None)
             )
             user = cur.fetchone()
             conn.commit()

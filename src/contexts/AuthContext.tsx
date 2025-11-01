@@ -12,7 +12,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, fullName: string) => Promise<void>;
+  register: (email: string, password: string, fullName: string, telegramUsername?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -57,8 +57,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('auth_token', data.token);
   };
 
-  const register = async (email: string, password: string, fullName: string) => {
-    const data = await auth.register(email, password, fullName);
+  const register = async (email: string, password: string, fullName: string, telegramUsername?: string) => {
+    const data = await auth.register(email, password, fullName, telegramUsername);
     if (data.error) {
       throw new Error(data.error);
     }

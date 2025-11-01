@@ -7,11 +7,11 @@ const API_BASE = {
 };
 
 export const auth = {
-  register: async (email: string, password: string, full_name: string) => {
+  register: async (email: string, password: string, full_name: string, telegram_username?: string) => {
     const response = await fetch(API_BASE.auth, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'register', email, password, full_name }),
+      body: JSON.stringify({ action: 'register', email, password, full_name, telegram_username }),
     });
     return response.json();
   },

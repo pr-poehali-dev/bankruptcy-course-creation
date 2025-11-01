@@ -12,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [fullName, setFullName] = useState('');
+  const [telegramUsername, setTelegramUsername] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { login, register } = useAuth();
@@ -24,7 +25,7 @@ const Login = () => {
 
     try {
       if (isRegistering) {
-        await register(email, password, fullName);
+        await register(email, password, fullName, telegramUsername);
         toast({
           title: 'Регистрация успешна!',
           description: 'Добро пожаловать на платформу обучения',
@@ -64,17 +65,33 @@ const Login = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegistering && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Полное имя</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Иван Иванов"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Полное имя</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Иван Иванов"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="telegramUsername">Telegram username (необязательно)</Label>
+                  <Input
+                    id="telegramUsername"
+                    type="text"
+                    placeholder="@username"
+                    value={telegramUsername}
+                    onChange={(e) => setTelegramUsername(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Для получения уведомлений о продлении доступа к чату юристов
+                  </p>
+                </div>
+              </>
             )}
             
             <div className="space-y-2">
