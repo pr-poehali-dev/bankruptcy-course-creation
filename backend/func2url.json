@@ -1,4 +1,5 @@
 {
+  "notify-cron": "https://functions.poehali.dev/8c64a439-e132-40b9-a64b-fab42af8aa99",
   "chat-notify": "https://functions.poehali.dev/002375a1-91ef-4076-9822-c2342937fb42",
   "chat-access": "https://functions.poehali.dev/7001345f-b7d4-48c6-8f16-19213c0e4b08",
   "chat-expire-check": "https://functions.poehali.dev/300236fb-71e2-46cf-beb7-284c45ce7a53",
