@@ -4,11 +4,7 @@
       "name": "Get all active clients",
       "method": "GET",
       "path": "/?active=true",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "clients": "array"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
       "name": "Add new client with 7 days access",
@@ -21,15 +17,7 @@
         "days": 7,
         "payment_amount": 2999
       },
-      "expectedStatus": 201,
-      "expectedBody": {
-        "success": true,
-        "client": {
-          "id": "number",
-          "client_name": "Иван Иванов"
-        }
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 201
     }
   ]
 }

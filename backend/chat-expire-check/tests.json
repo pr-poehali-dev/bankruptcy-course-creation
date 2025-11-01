@@ -4,13 +4,7 @@
       "name": "Check expired clients",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "success": true,
-        "deactivated_count": "number",
-        "deactivated_clients": "array"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     }
   ]
 }

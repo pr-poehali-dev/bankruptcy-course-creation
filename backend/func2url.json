@@ -1,4 +1,6 @@
 {
+  "chat-access": "https://functions.poehali.dev/7001345f-b7d4-48c6-8f16-19213c0e4b08",
+  "chat-expire-check": "https://functions.poehali.dev/300236fb-71e2-46cf-beb7-284c45ce7a53",
   "upload-file": "https://functions.poehali.dev/93c0187f-a1dd-40e0-bf79-89dada66de86",
   "payment": "https://functions.poehali.dev/b3f3dab4-093d-45bf-98cb-86512e00886b",
   "auth": "https://functions.poehali.dev/c499486b-a97c-4ff5-8905-0ccd7fddcf9d",
