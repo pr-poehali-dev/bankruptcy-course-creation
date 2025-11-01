@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Test payment notification",
+      "method": "POST",
+      "body": {
+        "type": "payment",
+        "subject": "Новая оплата на сайте",
+        "message": "Клиент оплатил курс",
+        "data": {
+          "email": "test@example.com",
+          "amount": 2999,
+          "package": "solo"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
