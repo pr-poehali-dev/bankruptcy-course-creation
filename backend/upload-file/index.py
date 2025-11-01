@@ -70,6 +70,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
         
+        print(f"Received POST request with body keys: {list(body_data.keys())}")
+        
         file_name = body_data.get('fileName')
         file_content = body_data.get('fileContent')
         file_type = body_data.get('fileType', 'application/pdf')
@@ -77,6 +79,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         description = body_data.get('description', '')
         lesson_id = body_data.get('lessonId')
         module_id = body_data.get('moduleId')
+        
+        print(f"Parsed data - fileName: {file_name}, lessonId: {lesson_id}, moduleId: {module_id}")
         
         if not file_name or not file_content:
             return {
@@ -110,13 +114,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         file_key = f'course-files/{uuid.uuid4()}/{file_name}'
         
         try:
+            print(f"Uploading to S3 - Bucket: {bucket_name}, Key: {file_key}")
             s3_client.put_object(
                 Bucket=bucket_name,
                 Key=file_key,
                 Body=file_data,
                 ContentType=file_type
             )
+            print(f"Successfully uploaded to S3")
         except ClientError as e:
+            print(f"S3 upload error: {str(e)}")
             return {
                 'statusCode': 500,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
