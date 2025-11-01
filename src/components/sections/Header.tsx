@@ -13,7 +13,10 @@ export default function Header({ user, scrollToSection, handleGetCourse }: Heade
   return (
     <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
       <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">Голосова Валентина</h1>
+        <div className="flex items-center gap-3">
+          <img src="https://cdn.poehali.dev/files/63deadff-30a2-40b7-88fb-4646bfaa9557.PNG" alt="Валентина Голосова" className="h-12 w-auto" />
+          <h1 className="text-xl font-bold text-primary hidden sm:block">Голосова Валентина</h1>
+        </div>
         <div className="hidden md:flex gap-6">
           <button onClick={() => scrollToSection("about")} className="hover:text-accent transition">О курсе</button>
           <button onClick={() => scrollToSection("program")} className="hover:text-accent transition">Программа</button>
