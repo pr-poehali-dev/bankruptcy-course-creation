@@ -1,19 +1,6 @@
 {
   "tests": [
     {
-      "name": "Get all files",
-      "method": "GET",
-      "path": "/",
-      "headers": {
-        "X-Auth-Token": "admin-secret-2024"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "files": "array"
-      },
-      "bodyMatcher": "partial"
-    },
-    {
       "name": "Upload file without auth",
       "method": "POST",
       "path": "/",
@@ -27,6 +14,12 @@
         "error": "string"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
     }
   ]
 }

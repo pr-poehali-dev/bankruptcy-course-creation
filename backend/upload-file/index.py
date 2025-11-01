@@ -2,12 +2,32 @@ import json
 import base64
 import uuid
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import boto3
 from botocore.exceptions import ClientError
+import jwt
+
+def verify_admin(headers: Dict[str, str]) -> Optional[Dict[str, Any]]:
+    auth_token = headers.get('X-Auth-Token') or headers.get('x-auth-token')
+    if not auth_token:
+        return None
+    
+    try:
+        jwt_secret = os.environ.get('JWT_SECRET')
+        if not jwt_secret:
+            return None
+        
+        payload = jwt.decode(auth_token, jwt_secret, algorithms=['HS256'])
+        
+        if not payload.get('is_admin'):
+            return None
+        
+        return payload
+    except:
+        return None
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -30,9 +50,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     headers = event.get('headers', {})
-    auth_token = headers.get('X-Auth-Token') or headers.get('x-auth-token')
+    admin_user = verify_admin(headers)
     
-    if not auth_token or auth_token != 'admin-secret-2024':
+    if not admin_user:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
