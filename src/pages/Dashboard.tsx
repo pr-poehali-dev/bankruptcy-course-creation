@@ -335,12 +335,42 @@ const Dashboard = () => {
                                 <button
                                   key={file.id}
                                   onClick={() => {
-                                    const link = document.createElement('a');
-                                    link.href = file.file_url || file.fileUrl;
-                                    link.download = file.file_name || file.fileName || 'file.pdf';
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
+                                    try {
+                                      const fileUrl = file.file_url || file.fileUrl;
+                                      const fileName = file.file_name || file.fileName || 'file.pdf';
+                                      
+                                      if (fileUrl.startsWith('data:')) {
+                                        const byteString = atob(fileUrl.split(',')[1]);
+                                        const mimeString = fileUrl.split(',')[0].split(':')[1].split(';')[0];
+                                        const ab = new ArrayBuffer(byteString.length);
+                                        const ia = new Uint8Array(ab);
+                                        for (let i = 0; i < byteString.length; i++) {
+                                          ia[i] = byteString.charCodeAt(i);
+                                        }
+                                        const blob = new Blob([ab], { type: mimeString });
+                                        const blobUrl = URL.createObjectURL(blob);
+                                        
+                                        const link = document.createElement('a');
+                                        link.href = blobUrl;
+                                        link.download = fileName;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        
+                                        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                      } else {
+                                        const link = document.createElement('a');
+                                        link.href = fileUrl;
+                                        link.download = fileName;
+                                        link.target = '_blank';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                      }
+                                    } catch (error) {
+                                      console.error('Ошибка при скачивании файла:', error);
+                                      alert('Не удалось скачать файл. Попробуйте еще раз.');
+                                    }
                                   }}
                                   className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors w-full text-left"
                                 >
