@@ -332,11 +332,28 @@ const Dashboard = () => {
                             </h5>
                             <div className="space-y-2">
                               {lesson.files.map((file: any) => (
-                                <a
+                                <button
                                   key={file.id}
-                                  href={`https://functions.poehali.dev/93c0187f-a1dd-40e0-bf79-89dada66de86?file_id=${file.id}`}
-                                  download={file.file_name || file.fileName || 'file.pdf'}
-                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors"
+                                  onClick={async () => {
+                                    try {
+                                      const response = await fetch(`https://functions.poehali.dev/93c0187f-a1dd-40e0-bf79-89dada66de86?file_id=${file.id}`);
+                                      if (!response.ok) throw new Error('Ошибка загрузки файла');
+                                      
+                                      const blob = await response.blob();
+                                      const url = window.URL.createObjectURL(blob);
+                                      const link = document.createElement('a');
+                                      link.href = url;
+                                      link.download = file.file_name || file.fileName || 'file.pdf';
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      document.body.removeChild(link);
+                                      window.URL.revokeObjectURL(url);
+                                    } catch (error) {
+                                      console.error('Ошибка при скачивании:', error);
+                                      alert('Не удалось скачать файл');
+                                    }
+                                  }}
+                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors w-full text-left"
                                 >
                                   <Icon name="FileText" size={18} className="text-primary mt-0.5" />
                                   <div className="flex-1 min-w-0">
@@ -351,7 +368,7 @@ const Dashboard = () => {
                                     </div>
                                   </div>
                                   <Icon name="Download" size={16} className="text-primary" />
-                                </a>
+                                </button>
                               ))}
                             </div>
                           </div>
