@@ -87,14 +87,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         file_data = base64.b64decode(file_content)
         
-        file_url = f'data:{file_type};base64,{file_content}'
-        
         conn = psycopg2.connect(database_url)
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
         cur.execute(
-            "INSERT INTO course_files (title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, file_url, uploaded_at",
-            (title, description, file_name, file_url, file_type, len(file_data), lesson_id, module_id, datetime.utcnow())
+            "INSERT INTO course_files (title, description, file_name, file_type, file_size, file_data, lesson_id, module_id, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, uploaded_at",
+            (title, description, file_name, file_type, len(file_data), psycopg2.Binary(file_data), lesson_id, module_id, datetime.utcnow())
         )
         
         result = cur.fetchone()
@@ -108,7 +106,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({
                 'id': result['id'],
                 'title': result['title'],
-                'url': result['file_url'],
                 'uploadedAt': result['uploaded_at'].isoformat()
             })
         }
@@ -124,28 +121,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if file_id:
             cur.execute(
-                "SELECT file_name, file_url, file_type FROM course_files WHERE id = %s",
+                "SELECT file_name, file_type, file_data FROM course_files WHERE id = %s",
                 (file_id,)
             )
-            file_data = cur.fetchone()
+            file_record = cur.fetchone()
             cur.close()
             conn.close()
             
-            if not file_data:
+            if not file_record:
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': 'File not found'})
                 }
             
-            if file_data['file_url'].startswith('data:'):
-                base64_content = file_data['file_url'].split(',')[1]
+            if file_record['file_data']:
+                file_bytes = bytes(file_record['file_data'])
+                base64_content = base64.b64encode(file_bytes).decode('utf-8')
                 
                 return {
                     'statusCode': 200,
                     'headers': {
-                        'Content-Type': file_data['file_type'],
-                        'Content-Disposition': f'attachment; filename="{file_data["file_name"]}"',
+                        'Content-Type': file_record['file_type'],
+                        'Content-Disposition': f'attachment; filename="{file_record["file_name"]}"',
                         'Access-Control-Allow-Origin': '*',
                         'Access-Control-Expose-Headers': 'Content-Disposition'
                     },
@@ -154,12 +152,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             else:
                 return {
-                    'statusCode': 302,
-                    'headers': {
-                        'Location': file_data['file_url'],
-                        'Access-Control-Allow-Origin': '*'
-                    },
-                    'body': ''
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'File data not found'})
                 }
         
         if lesson_id:
