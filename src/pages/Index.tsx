@@ -177,7 +177,7 @@ export default function Index() {
         <div className="container mx-auto max-w-6xl" ref={resultAnimation.ref}>
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary/20 text-primary">Результат</Badge>
-            <h3 className="text-4xl md:text-5xl font-bold mb-6">Вы по шагам подали заявление на банкротство</h3>
+            <h3 className="text-4xl md:text-5xl font-bold mb-6">Вы по шагам вместе с нами подали заявление на банкротство</h3>
             <p className="text-2xl font-semibold text-accent mt-4">
               И списали все долги
             </p>
@@ -239,7 +239,7 @@ export default function Index() {
 
           <div className={`mt-12 text-center bg-white rounded-2xl p-8 shadow-lg border-2 border-accent/20 opacity-0 ${resultAnimation.isVisible ? 'animate-fade-in-up delay-400' : ''}`}>
             <Icon name="TrendingUp" className="text-accent mx-auto mb-4" size={48} />
-            <h4 className="text-2xl font-bold mb-4">Начните новую жизнь без долгов</h4>
+            <h4 className="text-2xl font-bold mb-4">С нами легко начать новую жизнь без долгов и переплат юристам</h4>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Процедура банкротства — это законный способ освободиться от финансовых обязательств. 
               С нашим курсом вы пройдёте весь путь самостоятельно и сэкономите на услугах юристов.
