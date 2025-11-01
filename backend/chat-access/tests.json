@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Get all active clients",
+      "method": "GET",
+      "path": "/?active=true",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "clients": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Add new client with 7 days access",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "client_name": "Иван Иванов",
+        "client_email": "ivan@example.com",
+        "telegram_username": "@ivanov",
+        "days": 7,
+        "payment_amount": 2999
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "success": true,
+        "client": {
+          "id": "number",
+          "client_name": "Иван Иванов"
+        }
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
