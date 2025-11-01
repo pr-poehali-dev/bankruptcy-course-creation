@@ -540,6 +540,10 @@ export default function Index() {
                   </div>
                   <div className="flex gap-3">
                     <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
+                    <span className="text-sm">Авторские лайфхаки по банкротству</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
                     <span className="text-sm">Доступ без ограничений по времени</span>
                   </div>
                   <div className="flex gap-3">
