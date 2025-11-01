@@ -87,7 +87,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         file_data = base64.b64decode(file_content)
         
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client(
+            's3',
+            endpoint_url='https://storage.yandexcloud.net',
+            aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
+            region_name='ru-central1'
+        )
         bucket_name = 'poehalidev-user-files'
         file_key = f'files/{uuid.uuid4()}-{file_name}'
         
