@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-col items-center md:items-start gap-3">
-            <img src="https://cdn.poehali.dev/files/63deadff-30a2-40b7-88fb-4646bfaa9557.PNG" alt="Валентина Голосова" className="h-10 w-auto" />
+            <img src="https://cdn.poehali.dev/files/63deadff-30a2-40b7-88fb-4646bfaa9557.PNG" alt="Валентина Голосова" className="h-16 w-auto" />
             <div className="text-sm text-muted-foreground text-center md:text-left">
               © {new Date().getFullYear()} Курс по банкротству. Все права защищены.
             </div>
