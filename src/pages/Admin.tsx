@@ -54,6 +54,8 @@ const Admin = () => {
   const [uploading, setUploading] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<number | undefined>();
   const [selectedModule, setSelectedModule] = useState<number | undefined>();
+  const [editingModule, setEditingModule] = useState<Module | null>(null);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [newModule, setNewModule] = useState<Module>({
     title: '',
     description: '',
@@ -118,6 +120,23 @@ const Admin = () => {
     }
   };
 
+  const handleUpdateModule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingModule) return;
+    try {
+      const data = await admin.updateModule(token!, editingModule);
+      if (data.error) {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Успех', description: 'Модуль обновлён' });
+        setEditingModule(null);
+        loadModules();
+      }
+    } catch (err: any) {
+      toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+    }
+  };
+
   const handleCreateLesson = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -135,6 +154,23 @@ const Admin = () => {
           sort_order: 0,
           is_published: false,
         });
+        loadLessons();
+      }
+    } catch (err: any) {
+      toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  const handleUpdateLesson = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLesson) return;
+    try {
+      const data = await admin.updateLesson(token!, editingLesson);
+      if (data.error) {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Успех', description: 'Урок обновлён' });
+        setEditingLesson(null);
         loadLessons();
       }
     } catch (err: any) {
@@ -295,22 +331,69 @@ const Admin = () => {
                 <CardTitle>Список модулей</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {modules.map((module) => (
-                    <div key={module.id} className="p-4 border rounded-lg flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">{module.title}</h3>
-                        <p className="text-sm text-muted-foreground">{module.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Порядок: {module.sort_order} | {module.is_published ? '✅ Опубликован' : '❌ Скрыт'}
-                        </p>
-                      </div>
+                {editingModule ? (
+                  <form onSubmit={handleUpdateModule} className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-module-title">Название модуля</Label>
+                      <Input
+                        id="edit-module-title"
+                        value={editingModule.title}
+                        onChange={(e) => setEditingModule({ ...editingModule, title: e.target.value })}
+                        required
+                      />
                     </div>
-                  ))}
-                  {modules.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">Модулей пока нет</p>
-                  )}
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-module-description">Описание</Label>
+                      <Textarea
+                        id="edit-module-description"
+                        value={editingModule.description}
+                        onChange={(e) => setEditingModule({ ...editingModule, description: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-module-order">Порядковый номер</Label>
+                      <Input
+                        id="edit-module-order"
+                        type="number"
+                        value={editingModule.sort_order}
+                        onChange={(e) => setEditingModule({ ...editingModule, sort_order: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="edit-module-published"
+                        checked={editingModule.is_published}
+                        onCheckedChange={(checked) => setEditingModule({ ...editingModule, is_published: checked })}
+                      />
+                      <Label htmlFor="edit-module-published">Опубликовать модуль</Label>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1">Сохранить</Button>
+                      <Button type="button" variant="outline" onClick={() => setEditingModule(null)}>Отмена</Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-2">
+                    {modules.map((module) => (
+                      <div key={module.id} className="p-4 border rounded-lg flex justify-between items-center">
+                        <div>
+                          <h3 className="font-semibold">{module.title}</h3>
+                          <p className="text-sm text-muted-foreground">{module.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Порядок: {module.sort_order} | {module.is_published ? '✅ Опубликован' : '❌ Скрыт'}
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => setEditingModule(module)}>
+                          <Icon name="Edit" size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                    {modules.length === 0 && (
+                      <p className="text-center text-muted-foreground py-8">Модулей пока нет</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -413,26 +496,111 @@ const Admin = () => {
                 <CardTitle>Список уроков</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {lessons.map((lesson) => {
-                    const moduleName = modules.find(m => m.id === lesson.module_id)?.title || 'Неизвестный модуль';
-                    return (
-                      <div key={lesson.id} className="p-4 border rounded-lg">
-                        <h3 className="font-semibold">{lesson.title}</h3>
-                        <p className="text-sm text-muted-foreground">{lesson.description}</p>
-                        <div className="flex gap-4 text-xs text-muted-foreground mt-2">
-                          <span>Модуль: {moduleName}</span>
-                          <span>Длительность: {lesson.duration_minutes} мин</span>
-                          <span>Порядок: {lesson.sort_order}</span>
-                          <span>{lesson.is_published ? '✅ Опубликован' : '❌ Скрыт'}</span>
-                        </div>
+                {editingLesson ? (
+                  <form onSubmit={handleUpdateLesson} className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-lesson-module">Модуль</Label>
+                      <select
+                        id="edit-lesson-module"
+                        className="w-full px-3 py-2 border rounded-md"
+                        value={editingLesson.module_id}
+                        onChange={(e) => setEditingLesson({ ...editingLesson, module_id: parseInt(e.target.value) })}
+                        required
+                      >
+                        {modules.map((module) => (
+                          <option key={module.id} value={module.id}>
+                            {module.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-lesson-title">Название урока</Label>
+                      <Input
+                        id="edit-lesson-title"
+                        value={editingLesson.title}
+                        onChange={(e) => setEditingLesson({ ...editingLesson, title: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-lesson-description">Описание</Label>
+                      <Textarea
+                        id="edit-lesson-description"
+                        value={editingLesson.description}
+                        onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-lesson-video">Ссылка на видео</Label>
+                      <Input
+                        id="edit-lesson-video"
+                        type="url"
+                        value={editingLesson.video_url}
+                        onChange={(e) => setEditingLesson({ ...editingLesson, video_url: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-lesson-duration">Длительность (мин)</Label>
+                        <Input
+                          id="edit-lesson-duration"
+                          type="number"
+                          value={editingLesson.duration_minutes}
+                          onChange={(e) => setEditingLesson({ ...editingLesson, duration_minutes: parseInt(e.target.value) })}
+                        />
                       </div>
-                    );
-                  })}
-                  {lessons.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">Уроков пока нет</p>
-                  )}
-                </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-lesson-order">Порядок</Label>
+                        <Input
+                          id="edit-lesson-order"
+                          type="number"
+                          value={editingLesson.sort_order}
+                          onChange={(e) => setEditingLesson({ ...editingLesson, sort_order: parseInt(e.target.value) })}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="edit-lesson-published"
+                        checked={editingLesson.is_published}
+                        onCheckedChange={(checked) => setEditingLesson({ ...editingLesson, is_published: checked })}
+                      />
+                      <Label htmlFor="edit-lesson-published">Опубликовать урок</Label>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1">Сохранить</Button>
+                      <Button type="button" variant="outline" onClick={() => setEditingLesson(null)}>Отмена</Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-2">
+                    {lessons.map((lesson) => {
+                      const moduleName = modules.find(m => m.id === lesson.module_id)?.title || 'Неизвестный модуль';
+                      return (
+                        <div key={lesson.id} className="p-4 border rounded-lg flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold">{lesson.title}</h3>
+                            <p className="text-sm text-muted-foreground">{lesson.description}</p>
+                            <div className="flex gap-4 text-xs text-muted-foreground mt-2">
+                              <span>Модуль: {moduleName}</span>
+                              <span>Длительность: {lesson.duration_minutes} мин</span>
+                              <span>Порядок: {lesson.sort_order}</span>
+                              <span>{lesson.is_published ? '✅ Опубликован' : '❌ Скрыт'}</span>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => setEditingLesson(lesson)}>
+                            <Icon name="Edit" size={16} />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                    {lessons.length === 0 && (
+                      <p className="text-center text-muted-foreground py-8">Уроков пока нет</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -331,10 +331,10 @@ const Dashboard = () => {
                               Файлы к уроку
                             </h5>
                             <div className="space-y-2">
-                              {lesson.files.map((file) => (
+                              {lesson.files.map((file: any) => (
                                 <a
                                   key={file.id}
-                                  href={file.file_url}
+                                  href={file.file_url || file.fileUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors"
@@ -346,9 +346,9 @@ const Dashboard = () => {
                                       <p className="text-xs text-muted-foreground mt-1">{file.description}</p>
                                     )}
                                     <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                      <span>{file.file_name}</span>
+                                      <span>{file.file_name || file.fileName}</span>
                                       <span>•</span>
-                                      <span>{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
+                                      <span>{((file.file_size || file.fileSize) / 1024 / 1024).toFixed(2)} MB</span>
                                     </div>
                                   </div>
                                   <Icon name="Download" size={16} className="text-primary" />
