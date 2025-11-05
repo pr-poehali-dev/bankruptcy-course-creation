@@ -67,6 +67,7 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
     amount = body_data.get('amount', 2999)
     email = body_data.get('email', '')
     return_url = body_data.get('return_url', '')
+    product_type = body_data.get('product_type', 'course')
     
     if not user_id:
         return {
@@ -141,12 +142,21 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
     
     payment_response = response.json()
     
+    if product_type == 'course':
+        expires_interval = "6 months"
+    elif product_type == 'chat':
+        expires_interval = "1 month"
+    elif product_type == 'combo':
+        expires_interval = "6 months"
+    else:
+        expires_interval = "6 months"
+    
     conn = get_db_connection()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "INSERT INTO user_purchases (user_id, amount, payment_status, payment_id, expires_at) VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP + INTERVAL '6 months') RETURNING id",
-                (user_id, amount, 'pending', payment_response['id'])
+                f"INSERT INTO user_purchases (user_id, amount, payment_status, payment_id, product_type, expires_at) VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP + INTERVAL '{expires_interval}') RETURNING id",
+                (user_id, amount, 'pending', payment_response['id'], product_type)
             )
             purchase_id = cur.fetchone()['id']
             conn.commit()
@@ -189,16 +199,32 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "SELECT id, expires_at FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' AND product_type = 'course' ORDER BY expires_at DESC LIMIT 1",
-                (int(user_id),)
+                "SELECT product_type FROM user_purchases WHERE payment_id = %s AND user_id = %s",
+                (payment_id, int(user_id))
+            )
+            current_purchase = cur.fetchone()
+            current_product_type = current_purchase['product_type'] if current_purchase else 'course'
+            
+            cur.execute(
+                "SELECT id, expires_at FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' AND product_type = %s ORDER BY expires_at DESC LIMIT 1",
+                (int(user_id), current_product_type)
             )
             existing_purchase = cur.fetchone()
             
             if existing_purchase and existing_purchase['expires_at']:
-                if existing_purchase['expires_at'] > datetime.now():
-                    new_expires_at = existing_purchase['expires_at'] + timedelta(days=180)
+                if current_product_type == 'course':
+                    extension_days = 180
+                elif current_product_type == 'chat':
+                    extension_days = 30
+                elif current_product_type == 'combo':
+                    extension_days = 180
                 else:
-                    new_expires_at = datetime.now() + timedelta(days=180)
+                    extension_days = 180
+                
+                if existing_purchase['expires_at'] > datetime.now():
+                    new_expires_at = existing_purchase['expires_at'] + timedelta(days=extension_days)
+                else:
+                    new_expires_at = datetime.now() + timedelta(days=extension_days)
                 
                 cur.execute(
                     "UPDATE user_purchases SET payment_status = %s, expires_at = %s WHERE payment_id = %s AND user_id = %s",
@@ -221,11 +247,22 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
         conn.close()
     
     if user:
+        amount_value = float(payment.get('amount', {}).get('value', 0))
+        
         send_admin_notification(
             user_email=user['email'],
             user_name=user['full_name'],
-            amount=float(payment.get('amount', {}).get('value', 0)),
+            amount=amount_value,
             payment_id=payment_id
+        )
+        
+        grant_chat_access_in_bankrot_app(
+            user_email=user['email'],
+            user_name=user['full_name'],
+            amount=amount_value,
+            payment_id=payment_id,
+            product_type=current_product_type,
+            user_id=int(user_id)
         )
     
     return {
@@ -275,16 +312,32 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
             try:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
-                        "SELECT id, expires_at FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' AND product_type = 'course' ORDER BY expires_at DESC LIMIT 1",
-                        (int(user_id),)
+                        "SELECT product_type FROM user_purchases WHERE payment_id = %s AND user_id = %s",
+                        (payment_id, int(user_id))
+                    )
+                    current_purchase = cur.fetchone()
+                    current_product_type = current_purchase['product_type'] if current_purchase else 'course'
+                    
+                    cur.execute(
+                        "SELECT id, expires_at FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' AND product_type = %s ORDER BY expires_at DESC LIMIT 1",
+                        (int(user_id), current_product_type)
                     )
                     existing_purchase = cur.fetchone()
                     
                     if existing_purchase and existing_purchase['expires_at']:
-                        if existing_purchase['expires_at'] > datetime.now():
-                            new_expires_at = existing_purchase['expires_at'] + timedelta(days=180)
+                        if current_product_type == 'course':
+                            extension_days = 180
+                        elif current_product_type == 'chat':
+                            extension_days = 30
+                        elif current_product_type == 'combo':
+                            extension_days = 180
                         else:
-                            new_expires_at = datetime.now() + timedelta(days=180)
+                            extension_days = 180
+                        
+                        if existing_purchase['expires_at'] > datetime.now():
+                            new_expires_at = existing_purchase['expires_at'] + timedelta(days=extension_days)
+                        else:
+                            new_expires_at = datetime.now() + timedelta(days=extension_days)
                         
                         cur.execute(
                             "UPDATE user_purchases SET payment_status = %s, expires_at = %s WHERE payment_id = %s AND user_id = %s",
@@ -299,19 +352,31 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
                     conn.commit()
                     
                     cur.execute(
-                        "SELECT u.email, u.full_name FROM users u WHERE u.id = %s",
-                        (int(user_id),)
+                        "SELECT u.email, u.full_name, up.product_type FROM users u JOIN user_purchases up ON u.id = up.user_id WHERE up.payment_id = %s",
+                        (payment_id,)
                     )
                     user = cur.fetchone()
             finally:
                 conn.close()
             
             if user:
+                amount_value = float(payment_data.get('amount', {}).get('value', 0))
+                user_product_type = user.get('product_type', 'course')
+                
                 send_admin_notification(
                     user_email=user['email'],
                     user_name=user['full_name'],
-                    amount=float(payment_data.get('amount', {}).get('value', 0)),
+                    amount=amount_value,
                     payment_id=payment_id
+                )
+                
+                grant_chat_access_in_bankrot_app(
+                    user_email=user['email'],
+                    user_name=user['full_name'],
+                    amount=amount_value,
+                    payment_id=payment_id,
+                    product_type=user_product_type,
+                    user_id=int(user_id)
                 )
     
     return {
@@ -323,6 +388,36 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
             'paid': payment_data.get('paid', False)
         })
     }
+
+def grant_chat_access_in_bankrot_app(user_email: str, user_name: str, amount: float, payment_id: str, product_type: str, user_id: int):
+    if product_type not in ['chat', 'combo']:
+        return
+    
+    bankrot_db_url = os.environ.get('BANKROT_DATABASE_URL')
+    if not bankrot_db_url:
+        return
+    
+    try:
+        conn = psycopg2.connect(bankrot_db_url)
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                duration_days = 30
+                
+                cur.execute(
+                    """INSERT INTO chat_access 
+                    (client_name, client_email, telegram_username, access_start, access_end, 
+                     is_active, payment_amount, notes, user_id) 
+                    VALUES (%s, %s, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '%s days', 
+                            true, %s, %s, NULL)
+                    RETURNING id""",
+                    (user_name, user_email, duration_days, amount, f'Оплата через внешний сайт. Payment ID: {payment_id}')
+                )
+                chat_access_id = cur.fetchone()['id']
+                conn.commit()
+        finally:
+            conn.close()
+    except:
+        pass
 
 def send_admin_notification(user_email: str, user_name: str, amount: float, payment_id: str):
     admin_notify_url = 'https://functions.poehali.dev/d7308d73-82be-4249-9c4d-bd4ea5a81921'
