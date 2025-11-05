@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
@@ -14,6 +15,7 @@ const Login = () => {
   const [fullName, setFullName] = useState('');
   const [telegramUsername, setTelegramUsername] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   
   const { login, register } = useAuth();
   const navigate = useNavigate();
@@ -21,6 +23,16 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isRegistering && !agreedToTerms) {
+      toast({
+        title: 'Требуется согласие',
+        description: 'Необходимо согласиться с обработкой персональных данных',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -118,6 +130,30 @@ const Login = () => {
                 minLength={6}
               />
             </div>
+
+            {isRegistering && (
+              <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg">
+                <Checkbox 
+                  id="terms" 
+                  checked={agreedToTerms}
+                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                  className="mt-1"
+                />
+                <Label 
+                  htmlFor="terms" 
+                  className="text-sm leading-relaxed cursor-pointer"
+                >
+                  Я согласен на обработку моих персональных данных в соответствии с{' '}
+                  <a href="/privacy" target="_blank" className="text-accent underline hover:text-accent/80">
+                    политикой конфиденциальности
+                  </a>
+                  {' '}и принимаю условия{' '}
+                  <a href="/oferta" target="_blank" className="text-accent underline hover:text-accent/80">
+                    договора оферты
+                  </a>
+                </Label>
+              </div>
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Загрузка...' : (isRegistering ? 'Зарегистрироваться' : 'Войти')}
