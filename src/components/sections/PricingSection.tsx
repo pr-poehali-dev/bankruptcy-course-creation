@@ -177,8 +177,8 @@ export default function PricingSection() {
             <CardContent className="pt-12 pb-12">
               <div className="text-center mb-8">
                 <Badge className="mb-4 bg-accent/20 text-accent border-accent">С юристом</Badge>
-                <div className="text-5xl font-bold mb-2 text-primary">999 ₽</div>
-                <p className="text-muted-foreground">Доступ на 1 неделю</p>
+                <div className="text-5xl font-bold mb-2 text-primary">3 999 ₽</div>
+                <p className="text-muted-foreground">Доступ на 1 месяц</p>
               </div>
 
               <Separator className="mb-8" />
@@ -262,7 +262,7 @@ export default function PricingSection() {
                 Можно ли купить только чат без курса?
               </p>
               <p className="text-sm opacity-90 pl-7">
-                Да, доступ к чату с юристами можно купить отдельно за 999 ₽ на неделю.
+                Да, доступ к чату с юристами можно купить отдельно за 3 999 ₽ на месяц.
               </p>
             </div>
           </div>
