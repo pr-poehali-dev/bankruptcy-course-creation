@@ -44,7 +44,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Получаем SMTP настройки из переменных окружения
     admin_email = os.environ.get('ADMIN_EMAIL')
     smtp_host = os.environ.get('SMTP_HOST')
-    smtp_port = int(os.environ.get('SMTP_PORT', '465'))
+    smtp_port = int(os.environ.get('SMTP_PORT', '587'))
     smtp_user = os.environ.get('SMTP_USER')
     smtp_password = os.environ.get('SMTP_PASSWORD')
     
@@ -90,11 +90,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         if smtp_port == 465:
             # SSL
-            server = smtplib.SMTP_SSL(smtp_host, smtp_port)
+            server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
         else:
-            # TLS
-            server = smtplib.SMTP(smtp_host, smtp_port)
+            # TLS (порт 587)
+            server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
+            server.ehlo()
             server.starttls()
+            server.ehlo()
         
         server.login(smtp_user, smtp_password)
         server.send_message(msg)
