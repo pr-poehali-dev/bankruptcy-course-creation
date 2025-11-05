@@ -126,7 +126,14 @@ export default function Requisites() {
                   <Icon name="MessageCircle" className="text-accent" size={24} />
                   <div>
                     <div className="font-semibold">Telegram</div>
-                    <div className="text-muted-foreground">@golosova_bankrot</div>
+                    <a 
+                      href="https://t.me/crashbusiness" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-accent hover:underline"
+                    >
+                      @crashbusiness
+                    </a>
                   </div>
                 </div>
               </div>
