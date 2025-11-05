@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Oferta from "./pages/Oferta";
 import Privacy from "./pages/Privacy";
+import PersonalDataConsent from "./pages/PersonalDataConsent";
 import Requisites from "./pages/Requisites";
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/chat-access" element={<ChatAccess />} />
             <Route path="/oferta" element={<Oferta />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/personal-data-consent" element={<PersonalDataConsent />} />
             <Route path="/requisites" element={<Requisites />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />

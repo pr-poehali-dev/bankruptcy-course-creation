@@ -26,6 +26,12 @@ export default function Footer() {
               Политика конфиденциальности
             </Link>
             <Link 
+              to="/personal-data-consent" 
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              Согласие на обработку ПД
+            </Link>
+            <Link 
               to="/requisites" 
               className="text-muted-foreground hover:text-primary transition-colors"
             >

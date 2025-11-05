@@ -248,9 +248,10 @@ export default function Payment() {
 
             <p className="text-xs text-center text-muted-foreground mt-4">
               Нажимая кнопку, вы соглашаетесь с{' '}
-              <a href="/oferta" className="underline hover:text-primary">договором оферты</a>
-              {' '}и{' '}
+              <a href="/oferta" className="underline hover:text-primary">договором оферты</a>,{' '}
               <a href="/privacy" className="underline hover:text-primary">политикой конфиденциальности</a>
+              {' '}и{' '}
+              <a href="/personal-data-consent" className="underline hover:text-primary">согласием на обработку персональных данных</a>
             </p>
           </CardContent>
         </Card>
