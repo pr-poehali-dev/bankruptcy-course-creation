@@ -105,14 +105,14 @@ export default function PricingSection() {
 
           <Card className="border-4 border-green-500 hover:shadow-2xl transition-all relative bg-gradient-to-br from-green-50 to-white">
             <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <Badge className="bg-green-500 text-white font-bold px-6 py-1">🔥 Выгода 499 ₽</Badge>
+              <Badge className="bg-green-500 text-white font-bold px-6 py-1">🔥 Выгода 1 999 ₽</Badge>
             </div>
             <CardContent className="pt-12 pb-12">
               <div className="text-center mb-8">
                 <Badge className="mb-4 bg-green-100 text-green-700 border-green-300">Комбо-пакет</Badge>
                 <div className="flex items-center justify-center gap-3 mb-2">
-                  <span className="text-2xl text-muted-foreground line-through whitespace-nowrap">3 998 ₽</span>
-                  <span className="text-5xl font-bold text-green-600 whitespace-nowrap">3 499 ₽</span>
+                  <span className="text-2xl text-muted-foreground line-through whitespace-nowrap">6 998 ₽</span>
+                  <span className="text-5xl font-bold text-green-600 whitespace-nowrap">4 999 ₽</span>
                 </div>
                 <p className="text-muted-foreground">Курс + Месяц чата</p>
               </div>
@@ -165,7 +165,7 @@ export default function PricingSection() {
               </div>
 
               <p className="text-sm text-muted-foreground text-center mt-4">
-                💡 Самый выгодный вариант — экономия 499 ₽
+                💡 Самый выгодный вариант — экономия 1 999 ₽
               </p>
             </CardContent>
           </Card>
