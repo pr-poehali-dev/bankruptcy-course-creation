@@ -11,7 +11,7 @@ from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
 
 def get_db_connection():
@@ -189,9 +189,27 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "UPDATE user_purchases SET payment_status = %s WHERE payment_id = %s AND user_id = %s",
-                ('completed', payment_id, int(user_id))
+                "SELECT id, expires_at FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' AND product_type = 'course' ORDER BY expires_at DESC LIMIT 1",
+                (int(user_id),)
             )
+            existing_purchase = cur.fetchone()
+            
+            if existing_purchase and existing_purchase['expires_at']:
+                if existing_purchase['expires_at'] > datetime.now():
+                    new_expires_at = existing_purchase['expires_at'] + timedelta(days=180)
+                else:
+                    new_expires_at = datetime.now() + timedelta(days=180)
+                
+                cur.execute(
+                    "UPDATE user_purchases SET payment_status = %s, expires_at = %s WHERE payment_id = %s AND user_id = %s",
+                    ('completed', new_expires_at, payment_id, int(user_id))
+                )
+            else:
+                cur.execute(
+                    "UPDATE user_purchases SET payment_status = %s WHERE payment_id = %s AND user_id = %s",
+                    ('completed', payment_id, int(user_id))
+                )
+            
             conn.commit()
             
             cur.execute(
@@ -257,9 +275,27 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
             try:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
-                        "UPDATE user_purchases SET payment_status = %s WHERE payment_id = %s AND user_id = %s",
-                        ('completed', payment_id, int(user_id))
+                        "SELECT id, expires_at FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' AND product_type = 'course' ORDER BY expires_at DESC LIMIT 1",
+                        (int(user_id),)
                     )
+                    existing_purchase = cur.fetchone()
+                    
+                    if existing_purchase and existing_purchase['expires_at']:
+                        if existing_purchase['expires_at'] > datetime.now():
+                            new_expires_at = existing_purchase['expires_at'] + timedelta(days=180)
+                        else:
+                            new_expires_at = datetime.now() + timedelta(days=180)
+                        
+                        cur.execute(
+                            "UPDATE user_purchases SET payment_status = %s, expires_at = %s WHERE payment_id = %s AND user_id = %s",
+                            ('completed', new_expires_at, payment_id, int(user_id))
+                        )
+                    else:
+                        cur.execute(
+                            "UPDATE user_purchases SET payment_status = %s WHERE payment_id = %s AND user_id = %s",
+                            ('completed', payment_id, int(user_id))
+                        )
+                    
                     conn.commit()
                     
                     cur.execute(
