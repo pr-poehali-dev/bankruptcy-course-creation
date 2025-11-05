@@ -47,7 +47,7 @@ export default function PricingSection() {
               <div className="text-center mb-8">
                 <Badge className="mb-4 bg-primary/10 text-primary">Самостоятельно</Badge>
                 <div className="text-5xl font-bold mb-2 text-primary">2 999 ₽</div>
-                <p className="text-muted-foreground">Доступ навсегда</p>
+                <p className="text-muted-foreground">Доступ на 6 месяцев</p>
               </div>
 
               <Separator className="mb-8" />
@@ -71,11 +71,11 @@ export default function PricingSection() {
                 </div>
                 <div className="flex gap-3">
                   <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
-                  <span className="text-sm">Доступ без ограничений по времени</span>
+                  <span className="text-sm">Доступ на 6 месяцев</span>
                 </div>
                 <div className="flex gap-3">
                   <Icon name="Check" className="text-accent flex-shrink-0 mt-1" size={20} />
-                  <span className="text-sm">Обновления материалов бесплатно</span>
+                  <span className="text-sm">Обновления материалов в течение срока</span>
                 </div>
               </div>
 

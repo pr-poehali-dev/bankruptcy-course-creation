@@ -189,6 +189,19 @@ def validate_token(token: str, headers: Dict[str, str]) -> Dict[str, Any]:
             }
         
         payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+        user_id = payload['id']
+        
+        conn = get_db_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT COUNT(*) as has_access FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)",
+                    (user_id,)
+                )
+                access_check = cur.fetchone()
+                has_course_access = access_check['has_access'] > 0 or payload.get('is_admin', False)
+        finally:
+            conn.close()
         
         return {
             'statusCode': 200,
@@ -199,7 +212,8 @@ def validate_token(token: str, headers: Dict[str, str]) -> Dict[str, Any]:
                     'id': payload['id'],
                     'email': payload['email'],
                     'full_name': payload['full_name'],
-                    'is_admin': payload['is_admin']
+                    'is_admin': payload['is_admin'],
+                    'has_course_access': has_course_access
                 }
             })
         }

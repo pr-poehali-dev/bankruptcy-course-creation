@@ -145,7 +145,7 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "INSERT INTO user_purchases (user_id, amount, payment_status, payment_id) VALUES (%s, %s, %s, %s) RETURNING id",
+                "INSERT INTO user_purchases (user_id, amount, payment_status, payment_id, expires_at) VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP + INTERVAL '6 months') RETURNING id",
                 (user_id, amount, 'pending', payment_response['id'])
             )
             purchase_id = cur.fetchone()['id']
