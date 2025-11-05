@@ -407,10 +407,10 @@ def grant_chat_access_in_bankrot_app(user_email: str, user_name: str, amount: fl
                     """INSERT INTO chat_access 
                     (client_name, client_email, telegram_username, access_start, access_end, 
                      is_active, payment_amount, notes, user_id) 
-                    VALUES (%s, %s, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '%s days', 
+                    VALUES (%s, %s, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 days', 
                             true, %s, %s, NULL)
                     RETURNING id""",
-                    (user_name, user_email, duration_days, amount, f'Оплата через внешний сайт. Payment ID: {payment_id}')
+                    (user_name, user_email, amount, f'Оплата через внешний сайт. Payment ID: {payment_id}')
                 )
                 chat_access_id = cur.fetchone()['id']
                 conn.commit()
