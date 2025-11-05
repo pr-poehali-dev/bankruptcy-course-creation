@@ -44,7 +44,7 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
                   <span className="text-muted-foreground">Общение с другими участниками</span>
                 </li>
               </ul>
-              <div className="text-3xl font-bold text-primary mb-2">999 ₽</div>
+              <div className="text-3xl font-bold text-primary mb-2">3 999 ₽</div>
               <p className="text-sm text-muted-foreground mb-4">за месяц доступа</p>
               {user ? (
                 <Button onClick={() => navigate('/chat-access')} className="w-full bg-accent hover:bg-accent/90 text-primary">
