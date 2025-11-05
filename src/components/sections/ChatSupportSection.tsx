@@ -37,11 +37,15 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
                 </li>
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Ответы юристов в течение 24 часов</span>
+                  <span className="text-muted-foreground">Неограниченное количество вопросов</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Общение с другими участниками</span>
+                  <span className="text-muted-foreground">Ответы юристов в течение дня</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
+                  <span className="text-muted-foreground">Сопровождение на каждом этапе</span>
                 </li>
               </ul>
               <div className="text-3xl font-bold text-primary mb-2">3 999 ₽</div>
