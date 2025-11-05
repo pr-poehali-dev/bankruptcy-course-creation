@@ -193,8 +193,22 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                 ('completed', payment_id, int(user_id))
             )
             conn.commit()
+            
+            cur.execute(
+                "SELECT u.email, u.full_name FROM users u WHERE u.id = %s",
+                (int(user_id),)
+            )
+            user = cur.fetchone()
     finally:
         conn.close()
+    
+    if user:
+        send_admin_notification(
+            user_email=user['email'],
+            user_name=user['full_name'],
+            amount=float(payment.get('amount', {}).get('value', 0)),
+            payment_id=payment_id
+        )
     
     return {
         'statusCode': 200,
@@ -247,8 +261,22 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
                         ('completed', payment_id, int(user_id))
                     )
                     conn.commit()
+                    
+                    cur.execute(
+                        "SELECT u.email, u.full_name FROM users u WHERE u.id = %s",
+                        (int(user_id),)
+                    )
+                    user = cur.fetchone()
             finally:
                 conn.close()
+            
+            if user:
+                send_admin_notification(
+                    user_email=user['email'],
+                    user_name=user['full_name'],
+                    amount=float(payment_data.get('amount', {}).get('value', 0)),
+                    payment_id=payment_id
+                )
     
     return {
         'statusCode': 200,
@@ -259,3 +287,27 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
             'paid': payment_data.get('paid', False)
         })
     }
+
+def send_admin_notification(user_email: str, user_name: str, amount: float, payment_id: str):
+    admin_notify_url = 'https://functions.poehali.dev/d7308d73-82be-4249-9c4d-bd4ea5a81921'
+    
+    try:
+        requests.post(
+            admin_notify_url,
+            json={
+                'type': 'payment',
+                'subject': 'Новая оплата курса',
+                'message': f'Клиент {user_name} успешно оплатил курс',
+                'data': {
+                    'email': user_email,
+                    'name': user_name,
+                    'amount': amount,
+                    'payment_id': payment_id,
+                    'timestamp': datetime.now().isoformat()
+                }
+            },
+            headers={'Content-Type': 'application/json'},
+            timeout=5
+        )
+    except Exception as e:
+        pass
