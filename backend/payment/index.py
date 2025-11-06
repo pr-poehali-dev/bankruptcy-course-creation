@@ -58,10 +58,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     except Exception as e:
+        import traceback
         return {
             'statusCode': 500,
             'headers': headers_out,
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({
+                'error': str(e),
+                'type': type(e).__name__,
+                'traceback': traceback.format_exc()
+            })
         }
 
 def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, Any]:
