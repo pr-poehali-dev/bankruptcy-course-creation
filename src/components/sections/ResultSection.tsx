@@ -52,7 +52,7 @@ export default function ResultSection() {
               <div className="text-5xl font-bold text-primary mb-2">3</div>
               <h4 className="text-lg font-bold mb-2">Прошли процедуру</h4>
               <p className="text-sm text-muted-foreground">
-                Участвовали во всех судебных заседаниях
+                Взаимодействовали с судом и финансовым управляющим
               </p>
             </CardContent>
           </Card>
