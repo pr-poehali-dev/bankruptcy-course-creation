@@ -69,14 +69,45 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
     user_id = body_data.get('user_id')
     amount = body_data.get('amount', 2999)
     email = body_data.get('email', '')
+    full_name = body_data.get('name', 'Клиент')
     return_url = body_data.get('return_url', '')
     product_type = body_data.get('product_type', 'course')
+    
+    if not email:
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': 'email is required'})
+        }
+    
+    conn = get_db_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if not user_id:
+                cur.execute(
+                    "SELECT id FROM users WHERE email = %s",
+                    (email,)
+                )
+                existing_user = cur.fetchone()
+                
+                if existing_user:
+                    user_id = existing_user['id']
+                else:
+                    password = str(uuid.uuid4())[:8]
+                    cur.execute(
+                        "INSERT INTO users (email, password, full_name, is_admin) VALUES (%s, crypt(%s, gen_salt('bf')), %s, false) RETURNING id",
+                        (email, password, full_name)
+                    )
+                    user_id = cur.fetchone()['id']
+                    conn.commit()
+    finally:
+        conn.close()
     
     if not user_id:
         return {
             'statusCode': 400,
             'headers': headers,
-            'body': json.dumps({'error': 'user_id is required'})
+            'body': json.dumps({'error': 'Failed to create/find user'})
         }
     
     shop_id = os.environ.get('YUKASSA_SHOP_ID')
@@ -106,7 +137,9 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
         "capture": True,
         "description": "Оплата курса 'Банкротство физических лиц'",
         "metadata": {
-            "user_id": str(user_id)
+            "user_id": str(user_id),
+            "email": email,
+            "product_type": product_type
         }
     }
     
@@ -259,22 +292,49 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
             payment_id=payment_id
         )
         
-        chat_password = grant_chat_access_in_bankrot_app(
-            user_email=user['email'],
-            user_name=user['full_name'],
-            amount=amount_value,
-            payment_id=payment_id,
-            product_type=current_product_type,
-            user_id=int(user_id)
-        )
-        
-        if chat_password:
-            send_chat_credentials_email(
+        if current_product_type in ['chat', 'combo']:
+            chat_password = grant_chat_access_in_bankrot_app(
                 user_email=user['email'],
                 user_name=user['full_name'],
-                password=chat_password,
-                product_type=current_product_type
+                amount=amount_value,
+                payment_id=payment_id,
+                product_type=current_product_type,
+                user_id=int(user_id)
             )
+            
+            if chat_password:
+                send_chat_credentials_email(
+                    user_email=user['email'],
+                    user_name=user['full_name'],
+                    password=chat_password,
+                    product_type=current_product_type
+                )
+        
+        if current_product_type in ['course', 'combo']:
+            conn_main = get_db_connection()
+            try:
+                with conn_main.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute(
+                        "SELECT password FROM users WHERE id = %s",
+                        (int(user_id),)
+                    )
+                    user_data = cur.fetchone()
+                    
+                    temp_password = str(uuid.uuid4())[:8]
+                    
+                    cur.execute(
+                        "UPDATE users SET password = crypt(%s, gen_salt('bf')) WHERE id = %s",
+                        (temp_password, int(user_id))
+                    )
+                    conn_main.commit()
+                    
+                    send_course_credentials_email(
+                        user_email=user['email'],
+                        user_name=user['full_name'],
+                        password=temp_password
+                    )
+            finally:
+                conn_main.close()
     
     return {
         'statusCode': 200,
@@ -494,6 +554,89 @@ def send_chat_credentials_email(user_email: str, user_name: str, password: str, 
         <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #999;">
             С уважением,<br>
             <strong>Команда bankrot-kurs.online</strong>
+        </p>
+    </div>
+</body>
+</html>
+    '''
+    
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = smtp_user
+        msg['To'] = user_email
+        
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+        
+        with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
+            server.login(smtp_user, smtp_password)
+            server.send_message(msg)
+    except:
+        pass
+
+def send_course_credentials_email(user_email: str, user_name: str, password: str):
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = int(os.environ.get('SMTP_PORT', 465))
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    
+    if not all([smtp_host, smtp_user, smtp_password]):
+        return
+    
+    subject = 'Доступ к курсу "Банкротство физических лиц"'
+    
+    html_body = f'''
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Добро пожаловать на курс!</h1>
+    </div>
+    
+    <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+        <p style="font-size: 16px; margin-bottom: 20px;">Здравствуйте, <strong>{user_name}</strong>!</p>
+        
+        <p style="font-size: 16px; margin-bottom: 20px;">Спасибо за покупку! Ваш доступ к курсу <strong>"Банкротство физических лиц - самостоятельно"</strong> активирован на <strong>6 месяцев</strong>.</p>
+        
+        <div style="background: white; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #667eea;">
+            <h2 style="margin-top: 0; color: #667eea; font-size: 20px;">📝 Ваши данные для входа:</h2>
+            
+            <p style="margin: 15px 0;"><strong>Сайт:</strong> <a href="https://bankrot-kurs.online/dashboard" style="color: #667eea; text-decoration: none;">bankrot-kurs.online/dashboard</a></p>
+            
+            <p style="margin: 15px 0;"><strong>Email:</strong> <span style="background: #f0f0f0; padding: 5px 10px; border-radius: 4px; font-family: monospace;">{user_email}</span></p>
+            
+            <p style="margin: 15px 0;"><strong>Пароль:</strong> <span style="background: #fff3cd; padding: 5px 10px; border-radius: 4px; font-family: monospace; font-weight: bold;">{password}</span></p>
+        </div>
+        
+        <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 25px 0;">
+            <h3 style="margin-top: 0; color: #0066cc; font-size: 18px;">📚 Что вас ждёт в курсе:</h3>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li style="margin: 8px 0;">7 подробных видеомодулей</li>
+                <li style="margin: 8px 0;">Все шаблоны документов для подачи</li>
+                <li style="margin: 8px 0;">Пошаговые инструкции</li>
+                <li style="margin: 8px 0;">Доступ на 6 месяцев</li>
+            </ul>
+        </div>
+        
+        <p style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <strong>Важно:</strong> Сохраните это письмо — в нём содержится пароль для входа в личный кабинет.
+        </p>
+        
+        <p style="font-size: 14px; color: #666; margin-top: 15px;">
+            Если у вас возникнут вопросы, просто ответьте на это письмо.
+        </p>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="https://bankrot-kurs.online/login" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Начать обучение</a>
+        </div>
+        
+        <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #999;">
+            С уважением,<br>
+            <strong>Валентина Голосова</strong><br>
+            Арбитражный управляющий
         </p>
     </div>
 </body>

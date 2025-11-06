@@ -11,6 +11,7 @@ import Privacy from "./pages/Privacy";
 import PersonalDataConsent from "./pages/PersonalDataConsent";
 import Requisites from "./pages/Requisites";
 import Payment from "./pages/Payment";
+import PaymentForm from "./pages/PaymentForm";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/personal-data-consent" element={<PersonalDataConsent />} />
             <Route path="/requisites" element={<Requisites />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/payment/form" element={<PaymentForm />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
