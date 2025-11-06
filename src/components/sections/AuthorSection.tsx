@@ -8,13 +8,13 @@ export default function AuthorSection() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <img 
             src="https://cdn.poehali.dev/files/c4d81d00-b8ed-4563-a70d-fb71c0287993.png"
-            alt="Голосова Валентина"
+            alt="Арбитражный управляющий Валентина Голосова"
             className="rounded-2xl shadow-xl"
           />
           <div>
             <Badge className="mb-4">Об авторе</Badge>
-            <h3 className="text-4xl font-bold mb-6">Голосова Валентина</h3>
-            <p className="text-xl mb-6">Арбитражный управляющий с опытом более 10 лет</p>
+            <h3 className="text-4xl font-bold mb-6">Валентина Голосова</h3>
+            <p className="text-xl mb-6 font-semibold text-primary">Арбитражный управляющий с опытом более 10 лет</p>
             
             <div className="space-y-4 mb-8">
               <div className="flex gap-3">
