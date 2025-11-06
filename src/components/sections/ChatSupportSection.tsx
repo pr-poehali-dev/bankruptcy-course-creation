@@ -26,30 +26,62 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
           <Card className="border-2 border-accent/30">
             <CardContent className="pt-8">
               <Icon name="MessageSquare" className="text-accent mb-4" size={48} />
-              <h4 className="text-2xl font-bold mb-4">Групповой чат</h4>
+              <h4 className="text-2xl font-bold mb-4">Групповой чат с юристами</h4>
               <p className="text-muted-foreground mb-6">
-                Общение с опытными юристами и другими участниками курса. Получайте ответы на вопросы и делитесь опытом.
+                Квалифицированная юридическая помощь по конкретно вашим индивидуальным запросам. Полное сопровождение процедуры банкротства.
               </p>
+              
+              <div className="bg-accent/10 border border-accent/30 rounded-lg p-4 mb-6">
+                <p className="text-sm font-semibold text-accent mb-2">💰 Выгода очевидна!</p>
+                <p className="text-sm text-muted-foreground">
+                  Часовая консультация юриста стоит от <strong>5 000 ₽</strong>. 
+                  Мы предлагаем <strong>неограниченные консультации</strong> в течение месяца всего за <strong>2 999 ₽</strong>!
+                </p>
+              </div>
+
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Доступ на 1 месяц</span>
+                  <span className="text-muted-foreground">Проверим ваши заявления и ходатайства</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Неограниченное количество вопросов</span>
+                  <span className="text-muted-foreground">Поможем если кредитор оспаривает сделку</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Ответы юристов в течение дня</span>
+                  <span className="text-muted-foreground">Ежедневная поддержка по всем вопросам</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Сопровождение на каждом этапе</span>
+                  <span className="text-muted-foreground">Конфиденциальность — никто не видит ваших данных</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-accent mt-1 flex-shrink-0" size={20} />
+                  <span className="text-muted-foreground">Удобное приложение — юрист в вашем телефоне</span>
                 </li>
               </ul>
-              <div className="text-3xl font-bold text-primary mb-2">3 999 ₽</div>
-              <p className="text-sm text-muted-foreground mb-4">за месяц доступа</p>
+
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="Smartphone" className="text-primary" size={20} />
+                  <p className="text-sm font-semibold text-primary">Мобильное приложение</p>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Специально разработанное приложение для комфортной работы с телефона
+                </p>
+                <a 
+                  href="https://bankrot-kurs.online" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-accent hover:underline font-medium"
+                >
+                  bankrot-kurs.online →
+                </a>
+              </div>
+
+              <div className="text-3xl font-bold text-primary mb-2">2 999 ₽</div>
+              <p className="text-sm text-muted-foreground mb-4">неограниченные консультации в течение месяца</p>
               {user ? (
                 <Button onClick={() => navigate('/chat-access')} className="w-full bg-accent hover:bg-accent/90 text-primary">
                   Купить доступ
