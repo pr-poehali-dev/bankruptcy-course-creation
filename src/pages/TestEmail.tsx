@@ -17,7 +17,7 @@ const TestEmail = () => {
         body: JSON.stringify({
           email: 'melni-v@yandex.ru',
           name: 'Владимир',
-          password: '123456'
+          password: '12341234'
         })
       });
 
@@ -51,7 +51,7 @@ const TestEmail = () => {
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h1 className="text-2xl font-bold mb-4">Тестовое письмо</h1>
         <p className="text-gray-600 mb-6">
-          Нажмите кнопку чтобы отправить тестовое письмо на почту melni-v@yandex.ru с паролем 123456
+          Нажмите кнопку чтобы отправить тестовое письмо на почту melni-v@yandex.ru с паролем 12341234
         </p>
         <Button 
           onClick={sendTestEmail} 
