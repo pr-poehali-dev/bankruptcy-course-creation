@@ -1,4 +1,5 @@
 {
+  "test-email": "https://functions.poehali.dev/44b67bea-4c0b-4f2d-833a-f5adc60d9567",
   "admin-notify": "https://functions.poehali.dev/d7308d73-82be-4249-9c4d-bd4ea5a81921",
   "notify-cron": "https://functions.poehali.dev/8c64a439-e132-40b9-a64b-fab42af8aa99",
   "chat-notify": "https://functions.poehali.dev/002375a1-91ef-4076-9822-c2342937fb42",
