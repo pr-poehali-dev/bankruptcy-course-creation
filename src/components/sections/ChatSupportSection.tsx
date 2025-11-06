@@ -35,7 +35,7 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
                 <p className="text-sm font-semibold text-accent mb-2">💰 Выгода очевидна!</p>
                 <p className="text-sm text-muted-foreground">
                   Часовая консультация юриста стоит от <strong>5 000 ₽</strong>. 
-                  Мы предлагаем <strong>неограниченные консультации</strong> в течение месяца всего за <strong>2 999 ₽</strong>!
+                  Мы предлагаем <strong>неограниченные консультации</strong> в течение месяца всего за <strong>3 999 ₽</strong>!
                 </p>
               </div>
 
@@ -80,8 +80,8 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
                 </a>
               </div>
 
-              <div className="text-3xl font-bold text-primary mb-2">2 999 ₽</div>
-              <p className="text-sm text-muted-foreground mb-4">неограниченные консультации в течение месяца</p>
+              <div className="text-3xl font-bold text-primary mb-2">3 999 ₽</div>
+              <p className="text-sm text-muted-foreground mb-4">за месяц доступа</p>
               {user ? (
                 <Button onClick={() => navigate('/chat-access')} className="w-full bg-accent hover:bg-accent/90 text-primary">
                   Купить доступ
