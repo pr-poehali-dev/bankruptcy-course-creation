@@ -104,11 +104,23 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-primary mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Проверка всех документов</span>
+                  <span className="text-muted-foreground">Контакт с арбитражным управляющим напрямую</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-primary mt-1 flex-shrink-0" size={20} />
-                  <span className="text-muted-foreground">Помощь в подготовке заявлений</span>
+                  <span className="text-muted-foreground">Защита от субсидиарной ответственности</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-primary mt-1 flex-shrink-0" size={20} />
+                  <span className="text-muted-foreground">Представительство при оспаривании сделок</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-primary mt-1 flex-shrink-0" size={20} />
+                  <span className="text-muted-foreground">Сопровождение в предбанкротный период</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Icon name="Check" className="text-primary mt-1 flex-shrink-0" size={20} />
+                  <span className="text-muted-foreground">Проверка всех документов</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Icon name="Check" className="text-primary mt-1 flex-shrink-0" size={20} />
