@@ -246,12 +246,46 @@ const Admin = () => {
     }
   };
 
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
+  const sendTestEmail = async () => {
+    setSendingTestEmail(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/44b67bea-4c0b-4f2d-833a-f5adc60d9567', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'melni-v@yandex.ru',
+          name: 'Владимир',
+          password: '12341234'
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast({ title: 'Письмо отправлено!', description: 'Проверьте почту melni-v@yandex.ru' });
+      } else {
+        toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+    } finally {
+      setSendingTestEmail(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10">
       <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Админ-панель</h1>
           <div className="flex items-center gap-4">
+            <Button 
+              variant="secondary" 
+              onClick={sendTestEmail}
+              disabled={sendingTestEmail}
+            >
+              <Icon name="Mail" size={16} className="mr-2" />
+              {sendingTestEmail ? 'Отправка...' : 'Тест письма'}
+            </Button>
             <Button variant="outline" onClick={() => navigate('/dashboard')}>
               <Icon name="ArrowLeft" size={16} className="mr-2" />
               К курсам
