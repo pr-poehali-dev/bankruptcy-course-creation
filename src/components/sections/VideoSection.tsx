@@ -82,6 +82,8 @@ export default function VideoSection() {
               <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/quicktime" />
               Ваш браузер не поддерживает видео.
             </video>
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/20 via-transparent to-black/20"></div>
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/20 via-transparent to-black/20"></div>
           </div>
         </div>
       </div>
