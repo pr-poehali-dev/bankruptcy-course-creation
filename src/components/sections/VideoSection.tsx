@@ -66,14 +66,16 @@ export default function VideoSection() {
               ref={videoRef}
               className="w-full h-full object-cover"
               controls
-              preload="metadata"
+              autoPlay
+              loop
+              muted
               playsInline
+              preload="auto"
               onPlay={() => {
                 setIsPlaying(true);
                 setShowPlayButton(false);
               }}
               onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
             >
               <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/mp4" />
               <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/quicktime" />
