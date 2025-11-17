@@ -1,8 +1,32 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Icon from "@/components/ui/icon";
+import { useEffect, useRef } from "react";
 
 export default function VideoSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            videoRef.current?.play();
+          } else {
+            videoRef.current?.pause();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="py-20 px-4 bg-muted/20">
       <div className="container mx-auto max-w-6xl">
@@ -49,9 +73,11 @@ export default function VideoSection() {
           
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl">
             <video 
+              ref={videoRef}
               className="w-full h-full object-cover"
               controls
               preload="metadata"
+              muted
             >
               <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/quicktime" />
               Ваш браузер не поддерживает видео.
