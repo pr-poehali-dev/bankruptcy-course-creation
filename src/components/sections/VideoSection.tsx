@@ -6,15 +6,14 @@ import { useRef, useState } from "react";
 export default function VideoSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showPlayButton, setShowPlayButton] = useState(true);
 
   const handlePlayClick = () => {
     if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+      videoRef.current.play().catch((error) => {
+        console.error('Video play error:', error);
+      });
+      setShowPlayButton(false);
     }
   };
 
@@ -62,21 +61,31 @@ export default function VideoSection() {
             </div>
           </div>
           
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl group cursor-pointer" onClick={handlePlayClick}>
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl group">
             <video 
               ref={videoRef}
               className="w-full h-full object-cover"
+              controls
               preload="metadata"
-              onPlay={() => setIsPlaying(true)}
+              playsInline
+              onPlay={() => {
+                setIsPlaying(true);
+                setShowPlayButton(false);
+              }}
               onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
             >
+              <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/mp4" />
               <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/quicktime" />
               Ваш браузер не поддерживает видео.
             </video>
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/20 via-transparent to-black/20"></div>
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/20 via-transparent to-black/20"></div>
-            {!isPlaying && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/10 via-transparent to-black/10"></div>
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 via-transparent to-black/10"></div>
+            {showPlayButton && (
+              <div 
+                className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors cursor-pointer"
+                onClick={handlePlayClick}
+              >
                 <div className="bg-white/90 rounded-full p-6 group-hover:scale-110 transition-transform">
                   <Icon name="Play" size={48} className="text-primary" />
                 </div>
