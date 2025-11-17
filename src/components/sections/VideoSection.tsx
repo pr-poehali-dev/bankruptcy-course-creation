@@ -9,9 +9,9 @@ export default function VideoSection() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <Badge className="mb-4">Как это работает</Badge>
-            <h3 className="text-4xl md:text-5xl font-bold mb-6">Узнайте о курсе за 60 секунд</h3>
+            <h3 className="text-4xl md:text-5xl font-bold mb-6">Узнайте о курсе подробнее</h3>
             <p className="text-lg text-muted-foreground mb-8">
-              Короткое видео о том, как наш курс поможет вам пройти банкротство самостоятельно и сэкономить до 150 000 ₽
+              Видео о том, как наш курс поможет вам пройти банкротство самостоятельно и сэкономить до 150 000 ₽
             </p>
             
             <div className="space-y-4">
@@ -47,14 +47,15 @@ export default function VideoSection() {
             </div>
           </div>
           
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-primary/20 to-accent/20">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white">
-                <Icon name="PlayCircle" size={80} className="mx-auto mb-4 text-accent" />
-                <p className="text-lg font-semibold">Видео будет добавлено</p>
-                <p className="text-sm opacity-75">Промо-ролик о курсе</p>
-              </div>
-            </div>
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl">
+            <video 
+              className="w-full h-full object-cover"
+              controls
+              preload="metadata"
+            >
+              <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/quicktime" />
+              Ваш браузер не поддерживает видео.
+            </video>
           </div>
         </div>
       </div>
