@@ -27,6 +27,7 @@ interface CourseFile {
   uploadedAt: string;
   moduleId?: number;
   lessonId?: number;
+  isWelcomeVideo?: boolean;
 }
 
 interface Lesson {
@@ -192,7 +193,43 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {files.filter(f => !f.moduleId && !f.lessonId).length > 0 && (
+        {files.filter(f => f.isWelcomeVideo).length > 0 && (
+          <Card className="mb-8 border-accent bg-gradient-to-r from-accent/10 to-primary/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Video" size={24} className="text-accent" />
+                Видео-приветствие
+              </CardTitle>
+              <CardDescription>
+                Начните знакомство с курсом с приветственного видео
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {files.filter(f => f.isWelcomeVideo).map((file) => (
+                <div key={file.id} className="space-y-4">
+                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                    <video 
+                      controls 
+                      className="w-full h-full"
+                      poster=""
+                    >
+                      <source src={file.fileUrl} type={file.fileType} />
+                      Ваш браузер не поддерживает видео.
+                    </video>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">{file.title}</h3>
+                    {file.description && (
+                      <p className="text-muted-foreground mt-1">{file.description}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {files.filter(f => !f.moduleId && !f.lessonId && !f.isWelcomeVideo).length > 0 && (
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -205,7 +242,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="grid gap-3">
-                {files.filter(f => !f.moduleId && !f.lessonId).map((file) => (
+                {files.filter(f => !f.moduleId && !f.lessonId && !f.isWelcomeVideo).map((file) => (
                   <a
                     key={file.id}
                     href={file.fileUrl}

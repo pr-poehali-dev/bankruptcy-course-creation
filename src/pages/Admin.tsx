@@ -41,6 +41,7 @@ interface CourseFile {
   fileType: string;
   fileSize: number;
   uploadedAt: string;
+  isWelcomeVideo?: boolean;
 }
 
 const Admin = () => {
@@ -189,7 +190,7 @@ const Admin = () => {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isWelcomeVideo = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -213,6 +214,7 @@ const Admin = () => {
           description: description || '',
           lessonId: selectedLesson,
           moduleId: selectedModule,
+          isWelcomeVideo,
         });
 
         if (data.error) {
@@ -640,9 +642,64 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="files" className="space-y-6">
+            <Card className="border-accent bg-accent/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Video" size={24} />
+                  Видео-приветствие
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Загрузите специальное видео-приветствие, которое будет показано отдельным блоком в начале личного кабинета
+                  </p>
+                  <div className="border-2 border-dashed border-accent rounded-lg p-8 text-center">
+                    <input
+                      type="file"
+                      id="welcome-video-upload"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, true)}
+                      accept=".mp4,.mov,.avi"
+                      disabled={uploading}
+                    />
+                    <label htmlFor="welcome-video-upload" className="cursor-pointer">
+                      <Icon name="Video" size={48} className="mx-auto mb-4 text-accent" />
+                      <p className="text-lg font-medium mb-2">
+                        {uploading ? 'Загрузка...' : 'Загрузить видео-приветствие'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        MP4, MOV, AVI
+                      </p>
+                    </label>
+                  </div>
+                  {files.filter(f => f.isWelcomeVideo).length > 0 && (
+                    <div className="mt-4 p-4 border border-accent rounded-lg bg-background">
+                      <h4 className="font-semibold mb-2">Текущее видео-приветствие:</h4>
+                      {files.filter(f => f.isWelcomeVideo).map(file => (
+                        <div key={file.id} className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">{file.title}</p>
+                            <p className="text-sm text-muted-foreground">{(file.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteFile(file.id)}
+                          >
+                            <Icon name="Trash2" size={16} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
-                <CardTitle>Загрузить файл</CardTitle>
+                <CardTitle>Загрузить файл к модулю/уроку</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -710,11 +767,11 @@ const Admin = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Загруженные файлы ({files.length})</CardTitle>
+                <CardTitle>Загруженные файлы ({files.filter(f => !f.isWelcomeVideo).length})</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {files.map((file) => (
+                  {files.filter(f => !f.isWelcomeVideo).map((file) => (
                     <div key={file.id} className="p-4 border rounded-lg flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">

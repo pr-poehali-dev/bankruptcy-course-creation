@@ -79,6 +79,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         description = body_data.get('description', '')
         lesson_id = body_data.get('lessonId')
         module_id = body_data.get('moduleId')
+        is_welcome_video = body_data.get('isWelcomeVideo', False)
         
         print(f"Parsed data - fileName: {file_name}, lessonId: {lesson_id}, moduleId: {module_id}")
         
@@ -140,8 +141,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
         cur.execute(
-            "INSERT INTO course_files (title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, file_url, uploaded_at",
-            (title, description, file_name, file_url, file_type, len(file_data), lesson_id, module_id, datetime.utcnow())
+            "INSERT INTO course_files (title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, is_welcome_video, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, file_url, uploaded_at",
+            (title, description, file_name, file_url, file_type, len(file_data), lesson_id, module_id, is_welcome_video, datetime.utcnow())
         )
         
         result = cur.fetchone()
@@ -196,17 +197,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if lesson_id:
             cur.execute(
-                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at FROM course_files WHERE lesson_id = %s ORDER BY uploaded_at DESC",
+                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, is_welcome_video, uploaded_at FROM course_files WHERE lesson_id = %s ORDER BY uploaded_at DESC",
                 (lesson_id,)
             )
         elif module_id:
             cur.execute(
-                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at FROM course_files WHERE module_id = %s ORDER BY uploaded_at DESC",
+                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, is_welcome_video, uploaded_at FROM course_files WHERE module_id = %s ORDER BY uploaded_at DESC",
                 (module_id,)
             )
         else:
             cur.execute(
-                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, uploaded_at FROM course_files ORDER BY uploaded_at DESC"
+                "SELECT id, title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, is_welcome_video, uploaded_at FROM course_files ORDER BY uploaded_at DESC"
             )
         
         files = cur.fetchall()
@@ -225,6 +226,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'fileSize': f['file_size'],
                 'lessonId': f.get('lesson_id'),
                 'moduleId': f.get('module_id'),
+                'isWelcomeVideo': f.get('is_welcome_video', False),
                 'uploadedAt': f['uploaded_at'].isoformat()
             })
         

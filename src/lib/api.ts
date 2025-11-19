@@ -154,6 +154,7 @@ export const uploadFile = async (token: string, data: {
   description: string;
   lessonId?: number;
   moduleId?: number;
+  isWelcomeVideo?: boolean;
 }) => {
   const response = await fetch(API_BASE.upload, {
     method: 'POST',
