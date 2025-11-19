@@ -57,6 +57,12 @@ const Admin = () => {
   const [selectedModule, setSelectedModule] = useState<number | undefined>();
   const [editingModule, setEditingModule] = useState<Module | null>(null);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [welcomeVideoUrl, setWelcomeVideoUrl] = useState('');
+  const [welcomeVideoTitle, setWelcomeVideoTitle] = useState('');
+  const [welcomeVideoDescription, setWelcomeVideoDescription] = useState('');
+  const [moduleFileUrl, setModuleFileUrl] = useState('');
+  const [moduleFileTitle, setModuleFileTitle] = useState('');
+  const [moduleFileDescription, setModuleFileDescription] = useState('');
   const [newModule, setNewModule] = useState<Module>({
     title: '',
     description: '',
@@ -228,6 +234,75 @@ const Admin = () => {
       reader.readAsDataURL(file);
     } catch (err: any) {
       toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+      setUploading(false);
+    }
+  };
+
+  const handleSaveWelcomeVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!welcomeVideoUrl.trim()) {
+      toast({ title: 'Ошибка', description: 'Введите ссылку на видео', variant: 'destructive' });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const data = await uploadFile(token!, {
+        title: welcomeVideoTitle || 'Видео-приветствие',
+        description: welcomeVideoDescription,
+        fileType: 'video/mp4',
+        externalUrl: welcomeVideoUrl,
+        isWelcomeVideo: true,
+      });
+
+      if (data.error) {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Успех', description: 'Видео-приветствие сохранено' });
+        setWelcomeVideoUrl('');
+        setWelcomeVideoTitle('');
+        setWelcomeVideoDescription('');
+        loadFiles();
+      }
+    } catch (err: any) {
+      toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSaveModuleFile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!moduleFileUrl.trim()) {
+      toast({ title: 'Ошибка', description: 'Введите ссылку на файл', variant: 'destructive' });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const data = await uploadFile(token!, {
+        title: moduleFileTitle || 'Файл модуля',
+        description: moduleFileDescription,
+        fileType: 'application/pdf',
+        externalUrl: moduleFileUrl,
+        moduleId: selectedModule,
+        lessonId: selectedLesson,
+      });
+
+      if (data.error) {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Успех', description: 'Файл сохранен' });
+        setModuleFileUrl('');
+        setModuleFileTitle('');
+        setModuleFileDescription('');
+        loadFiles();
+      }
+    } catch (err: any) {
+      toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
+    } finally {
       setUploading(false);
     }
   };
@@ -650,50 +725,82 @@ const Admin = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Загрузите специальное видео-приветствие, которое будет показано отдельным блоком в начале личного кабинета
-                  </p>
-                  <div className="border-2 border-dashed border-accent rounded-lg p-8 text-center">
-                    <input
-                      type="file"
-                      id="welcome-video-upload"
-                      className="hidden"
-                      onChange={(e) => handleFileUpload(e, true)}
-                      accept=".mp4,.mov,.avi"
-                      disabled={uploading}
+                <form onSubmit={handleSaveWelcomeVideo} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="welcome-video-url">Ссылка на видео</Label>
+                    <Input
+                      id="welcome-video-url"
+                      type="url"
+                      placeholder="https://example.com/video.mp4"
+                      value={welcomeVideoUrl}
+                      onChange={(e) => setWelcomeVideoUrl(e.target.value)}
+                      required
                     />
-                    <label htmlFor="welcome-video-upload" className="cursor-pointer">
-                      <Icon name="Video" size={48} className="mx-auto mb-4 text-accent" />
-                      <p className="text-lg font-medium mb-2">
-                        {uploading ? 'Загрузка...' : 'Загрузить видео-приветствие'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        MP4, MOV, AVI
-                      </p>
-                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      Вставьте прямую ссылку на видео из вашего облачного хранилища
+                    </p>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="welcome-video-title">Название (опционально)</Label>
+                    <Input
+                      id="welcome-video-title"
+                      type="text"
+                      placeholder="Видео-приветствие"
+                      value={welcomeVideoTitle}
+                      onChange={(e) => setWelcomeVideoTitle(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="welcome-video-description">Описание (опционально)</Label>
+                    <Textarea
+                      id="welcome-video-description"
+                      placeholder="Краткое описание видео..."
+                      value={welcomeVideoDescription}
+                      onChange={(e) => setWelcomeVideoDescription(e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={uploading}>
+                    <Icon name="Save" size={16} className="mr-2" />
+                    {uploading ? 'Сохранение...' : 'Сохранить видео-приветствие'}
+                  </Button>
+
                   {files.filter(f => f.isWelcomeVideo).length > 0 && (
-                    <div className="mt-4 p-4 border border-accent rounded-lg bg-background">
-                      <h4 className="font-semibold mb-2">Текущее видео-приветствие:</h4>
+                    <div className="mt-6 p-4 border border-accent rounded-lg bg-background">
+                      <h4 className="font-semibold mb-3">Текущее видео-приветствие:</h4>
                       {files.filter(f => f.isWelcomeVideo).map(file => (
-                        <div key={file.id} className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">{file.title}</p>
-                            <p className="text-sm text-muted-foreground">{(file.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+                        <div key={file.id} className="space-y-2">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <p className="font-medium">{file.title}</p>
+                              {file.description && (
+                                <p className="text-sm text-muted-foreground mt-1">{file.description}</p>
+                              )}
+                              <a 
+                                href={file.fileUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-xs text-accent hover:underline mt-1 inline-block"
+                              >
+                                {file.fileUrl}
+                              </a>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteFile(file.id)}
+                            >
+                              <Icon name="Trash2" size={16} />
+                            </Button>
                           </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteFile(file.id)}
-                          >
-                            <Icon name="Trash2" size={16} />
-                          </Button>
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
+                </form>
               </CardContent>
             </Card>
 
@@ -702,7 +809,7 @@ const Admin = () => {
                 <CardTitle>Загрузить файл к модулю/уроку</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <form onSubmit={handleSaveModuleFile} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="file-module">Прикрепить к модулю (опционально)</Label>
@@ -741,27 +848,50 @@ const Admin = () => {
                       </div>
                     )}
                   </div>
-                  
-                  <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                    <input
-                      type="file"
-                      id="file-upload"
-                      className="hidden"
-                      onChange={handleFileUpload}
-                      accept=".pdf,.doc,.docx,.mp4,.mov,.avi"
-                      disabled={uploading}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="module-file-url">Ссылка на файл (PDF, видео)</Label>
+                    <Input
+                      id="module-file-url"
+                      type="url"
+                      placeholder="https://example.com/file.pdf"
+                      value={moduleFileUrl}
+                      onChange={(e) => setModuleFileUrl(e.target.value)}
+                      required
                     />
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      <Icon name="Upload" size={48} className="mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-lg font-medium mb-2">
-                        {uploading ? 'Загрузка...' : 'Нажмите для загрузки файла'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        PDF, DOC, DOCX, MP4, MOV, AVI
-                      </p>
-                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      Вставьте прямую ссылку на PDF или видео из облачного хранилища
+                    </p>
                   </div>
-                </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="module-file-title">Название</Label>
+                    <Input
+                      id="module-file-title"
+                      type="text"
+                      placeholder="Название файла"
+                      value={moduleFileTitle}
+                      onChange={(e) => setModuleFileTitle(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="module-file-description">Описание (опционально)</Label>
+                    <Textarea
+                      id="module-file-description"
+                      placeholder="Краткое описание..."
+                      value={moduleFileDescription}
+                      onChange={(e) => setModuleFileDescription(e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={uploading}>
+                    <Icon name="Save" size={16} className="mr-2" />
+                    {uploading ? 'Сохранение...' : 'Добавить файл'}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
 

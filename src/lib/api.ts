@@ -147,14 +147,15 @@ export const payment = {
 };
 
 export const uploadFile = async (token: string, data: {
-  fileName: string;
-  fileContent: string;
+  fileName?: string;
+  fileContent?: string;
   fileType: string;
   title: string;
   description: string;
   lessonId?: number;
   moduleId?: number;
   isWelcomeVideo?: boolean;
+  externalUrl?: string;
 }) => {
   const response = await fetch(API_BASE.upload, {
     method: 'POST',

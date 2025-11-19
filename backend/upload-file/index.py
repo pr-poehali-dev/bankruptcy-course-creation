@@ -74,6 +74,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         file_name = body_data.get('fileName')
         file_content = body_data.get('fileContent')
+        external_url = body_data.get('externalUrl')
         file_type = body_data.get('fileType', 'application/pdf')
         title = body_data.get('title', file_name)
         description = body_data.get('description', '')
@@ -81,13 +82,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         module_id = body_data.get('moduleId')
         is_welcome_video = body_data.get('isWelcomeVideo', False)
         
-        print(f"Parsed data - fileName: {file_name}, lessonId: {lesson_id}, moduleId: {module_id}")
+        print(f"Parsed data - fileName: {file_name}, lessonId: {lesson_id}, moduleId: {module_id}, externalUrl: {external_url}")
+        
+        if external_url:
+            conn = psycopg2.connect(database_url)
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            
+            cur.execute(
+                "INSERT INTO course_files (title, description, file_name, file_url, file_type, file_size, lesson_id, module_id, is_welcome_video, uploaded_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, title, file_url, uploaded_at",
+                (title, description, title or 'external-video', external_url, file_type, 0, lesson_id, module_id, is_welcome_video, datetime.utcnow())
+            )
+            
+            result = cur.fetchone()
+            conn.commit()
+            cur.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'id': result['id'],
+                    'title': result['title'],
+                    'url': result['file_url'],
+                    'uploadedAt': result['uploaded_at'].isoformat()
+                })
+            }
         
         if not file_name or not file_content:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'fileName and fileContent are required'})
+                'body': json.dumps({'error': 'fileName and fileContent or externalUrl are required'})
             }
         
         file_data = base64.b64decode(file_content)
