@@ -301,27 +301,40 @@ const Dashboard = () => {
                         </a>
                       ))}
                       {module.files && module.files.map((file) => (
-                        <a
-                          key={file.id}
-                          href={file.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-start gap-2 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                        >
+                        <div key={file.id} className="flex items-start gap-2 p-3 border rounded-lg hover:bg-muted/50 transition-colors group">
                           <Icon name="FileText" size={18} className="text-primary mt-1" />
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm">{file.title}</p>
+                            <a
+                              href={file.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-sm hover:text-primary transition-colors"
+                            >
+                              {file.title}
+                            </a>
                             {file.description && (
                               <p className="text-xs text-muted-foreground mt-0.5">{file.description}</p>
                             )}
                             <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                               <span className="truncate">{file.fileName}</span>
-                              <span>•</span>
-                              <span>{(file.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+                              {file.fileSize > 0 && (
+                                <>
+                                  <span>•</span>
+                                  <span>{(file.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+                                </>
+                              )}
                             </div>
                           </div>
-                          <Icon name="Download" size={16} className="text-muted-foreground flex-shrink-0" />
-                        </a>
+                          <a
+                            href={file.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-shrink-0 p-2 rounded hover:bg-primary/10 transition-colors"
+                            title="Открыть файл"
+                          >
+                            <Icon name="ExternalLink" size={16} className="text-primary" />
+                          </a>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -395,28 +408,42 @@ const Dashboard = () => {
                             </h5>
                             <div className="space-y-2">
                               {lesson.files.map((file: any) => (
-                                <a
-                                  key={file.id}
-                                  href={file.file_url || file.fileUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  download
-                                  className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors"
-                                >
+                                <div key={file.id} className="flex items-start gap-3 p-3 bg-background rounded-md hover:bg-muted/50 transition-colors group">
                                   <Icon name="FileText" size={18} className="text-primary mt-0.5" />
                                   <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-sm">{file.title}</p>
+                                    <a
+                                      href={file.file_url || file.fileUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-medium text-sm hover:text-primary transition-colors"
+                                    >
+                                      {file.title}
+                                    </a>
                                     {file.description && (
                                       <p className="text-xs text-muted-foreground mt-1">{file.description}</p>
                                     )}
-                                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                      <span>{file.file_name || file.fileName}</span>
-                                      <span>•</span>
-                                      <span>{((file.file_size || file.fileSize) / 1024 / 1024).toFixed(2)} MB</span>
-                                    </div>
+                                    {(file.file_name || file.fileName) && (
+                                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                        <span>{file.file_name || file.fileName}</span>
+                                        {(file.file_size || file.fileSize) > 0 && (
+                                          <>
+                                            <span>•</span>
+                                            <span>{((file.file_size || file.fileSize) / 1024 / 1024).toFixed(2)} MB</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
-                                  <Icon name="Download" size={16} className="text-primary" />
-                                </a>
+                                  <a
+                                    href={file.file_url || file.fileUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex-shrink-0 p-2 rounded hover:bg-primary/10 transition-colors"
+                                    title="Открыть файл"
+                                  >
+                                    <Icon name="ExternalLink" size={16} className="text-primary" />
+                                  </a>
+                                </div>
                               ))}
                             </div>
                           </div>
