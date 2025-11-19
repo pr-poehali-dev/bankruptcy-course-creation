@@ -20,14 +20,14 @@ interface CourseFile {
   id: number;
   title: string;
   description: string;
-  fileName: string;
-  fileUrl: string;
-  fileType: string;
-  fileSize: number;
-  uploadedAt: string;
-  moduleId?: number;
-  lessonId?: number;
-  isWelcomeVideo?: boolean;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  file_size: number;
+  uploaded_at?: string;
+  module_id?: number;
+  lesson_id?: number;
+  is_welcome_video?: boolean;
 }
 
 interface Lesson {
@@ -77,6 +77,18 @@ const Dashboard = () => {
       if (data.error) {
         setError(data.error);
       } else {
+        console.log('Course modules data:', data);
+        // Log files for debugging
+        data.forEach((module: Module) => {
+          if (module.files && module.files.length > 0) {
+            console.log(`Module "${module.title}" files:`, module.files);
+          }
+          module.lessons.forEach((lesson: Lesson) => {
+            if (lesson.files && lesson.files.length > 0) {
+              console.log(`Lesson "${lesson.title}" files:`, lesson.files);
+            }
+          });
+        });
         setModules(data);
       }
     } catch (err: any) {
@@ -305,7 +317,7 @@ const Dashboard = () => {
                           <Icon name="FileText" size={18} className="text-primary mt-1" />
                           <div className="flex-1 min-w-0">
                             <a
-                              href={file.fileUrl}
+                              href={file.file_url}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="font-medium text-sm hover:text-primary transition-colors"
@@ -316,17 +328,17 @@ const Dashboard = () => {
                               <p className="text-xs text-muted-foreground mt-0.5">{file.description}</p>
                             )}
                             <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                              <span className="truncate">{file.fileName}</span>
-                              {file.fileSize > 0 && (
+                              <span className="truncate">{file.file_name}</span>
+                              {file.file_size > 0 && (
                                 <>
                                   <span>•</span>
-                                  <span>{(file.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+                                  <span>{(file.file_size / 1024 / 1024).toFixed(1)} MB</span>
                                 </>
                               )}
                             </div>
                           </div>
                           <a
-                            href={file.fileUrl}
+                            href={file.file_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex-shrink-0 p-2 rounded hover:bg-primary/10 transition-colors"
