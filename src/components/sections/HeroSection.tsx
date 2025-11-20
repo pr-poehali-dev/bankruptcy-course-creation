@@ -35,12 +35,12 @@ export default function HeroSection({ user, scrollToSection }: HeroSectionProps)
             <div className="mt-6 bg-gradient-to-r from-accent/20 via-accent/10 to-accent/20 rounded-xl p-4 border-2 border-accent/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Курс доступен по цене</p>
-                  <p className="text-3xl font-bold text-primary whitespace-nowrap">от 2 999 ₽</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Курс доступен по цене</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-primary whitespace-nowrap">от 2 999 ₽</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground mb-1">Вместо юриста за</p>
-                  <p className="text-2xl font-bold text-muted-foreground line-through whitespace-nowrap">50 000 ₽</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Вместо юриста за</p>
+                  <p className="text-xl sm:text-2xl font-bold text-muted-foreground line-through whitespace-nowrap">50 000 ₽</p>
                 </div>
               </div>
             </div>
