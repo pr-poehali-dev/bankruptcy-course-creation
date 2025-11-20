@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { course, getFiles } from '@/lib/api';
@@ -60,6 +60,8 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [files, setFiles] = useState<any[]>([]);
+  const videoRefs = useRef<{ [key: number]: HTMLVideoElement | null }>({});
+  const progressIntervals = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
   useEffect(() => {
     if (!token) {
@@ -118,6 +120,76 @@ export const Dashboard = () => {
       console.error('Error updating progress:', err);
     }
   };
+
+  const handleVideoPlay = (lessonId: number) => {
+    // Отправляем прогресс каждые 5 секунд
+    if (progressIntervals.current[lessonId]) {
+      clearInterval(progressIntervals.current[lessonId]);
+    }
+    
+    progressIntervals.current[lessonId] = setInterval(async () => {
+      const video = videoRefs.current[lessonId];
+      if (video && !video.paused) {
+        const watchTime = Math.floor(video.currentTime);
+        const duration = Math.floor(video.duration);
+        const completed = watchTime >= duration * 0.9; // 90% просмотра = завершено
+        
+        try {
+          await course.updateProgress(token!, lessonId, completed, watchTime);
+          if (completed) {
+            clearInterval(progressIntervals.current[lessonId]);
+            loadCourseContent(); // Обновляем данные при завершении
+          }
+        } catch (err) {
+          console.error('Error updating progress:', err);
+        }
+      }
+    }, 5000);
+  };
+
+  const handleVideoPause = (lessonId: number) => {
+    if (progressIntervals.current[lessonId]) {
+      clearInterval(progressIntervals.current[lessonId]);
+    }
+    
+    // Сохраняем прогресс при паузе
+    const video = videoRefs.current[lessonId];
+    if (video) {
+      const watchTime = Math.floor(video.currentTime);
+      const duration = Math.floor(video.duration);
+      const completed = watchTime >= duration * 0.9;
+      
+      course.updateProgress(token!, lessonId, completed, watchTime).catch(err => {
+        console.error('Error saving progress on pause:', err);
+      });
+    }
+  };
+
+  const handleVideoEnded = async (lessonId: number) => {
+    if (progressIntervals.current[lessonId]) {
+      clearInterval(progressIntervals.current[lessonId]);
+    }
+    
+    const video = videoRefs.current[lessonId];
+    if (video) {
+      const watchTime = Math.floor(video.duration);
+      try {
+        await course.updateProgress(token!, lessonId, true, watchTime);
+        loadCourseContent();
+      } catch (err) {
+        console.error('Error marking as completed:', err);
+      }
+    }
+  };
+
+  // Очистка интервалов при размонтировании
+  useEffect(() => {
+    return () => {
+      Object.values(progressIntervals.current).forEach(interval => {
+        clearInterval(interval);
+      });
+    };
+  }, []);
 
   const loadCourseFiles = async () => {
     try {
@@ -388,13 +460,30 @@ export const Dashboard = () => {
                             <p className="text-muted-foreground leading-relaxed">{lesson.description}</p>
                             
                             {lesson.video_url && (
-                              <div className="aspect-video rounded-xl overflow-hidden bg-slate-950 shadow-xl">
-                                <video
-                                  src={lesson.video_url}
-                                  controls
-                                  className="w-full h-full"
-                                  controlsList="nodownload"
-                                />
+                              <div className="space-y-3">
+                                <div className="aspect-video rounded-xl overflow-hidden bg-slate-950 shadow-xl">
+                                  <video
+                                    ref={(el) => (videoRefs.current[lesson.id] = el)}
+                                    src={lesson.video_url}
+                                    controls
+                                    className="w-full h-full"
+                                    controlsList="nodownload"
+                                    onPlay={() => handleVideoPlay(lesson.id)}
+                                    onPause={() => handleVideoPause(lesson.id)}
+                                    onEnded={() => handleVideoEnded(lesson.id)}
+                                  />
+                                </div>
+                                {lesson.progress?.watch_time_seconds > 0 && (
+                                  <div className="flex items-center gap-2">
+                                    <Progress 
+                                      value={(lesson.progress.watch_time_seconds / (lesson.duration_minutes * 60)) * 100} 
+                                      className="flex-1 h-2" 
+                                    />
+                                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                      {Math.floor(lesson.progress.watch_time_seconds / 60)}:{String(lesson.progress.watch_time_seconds % 60).padStart(2, '0')} / {lesson.duration_minutes}:00
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             )}
 
