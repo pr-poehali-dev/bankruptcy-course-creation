@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Request password reset",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "request",
+        "email": "test@example.com"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Invalid action",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "invalid"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
