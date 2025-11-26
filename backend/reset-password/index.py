@@ -179,6 +179,8 @@ def send_reset_email(email: str, name: str, token: str) -> None:
     smtp_user = os.environ.get('SMTP_USER')
     smtp_password = os.environ.get('SMTP_PASSWORD')
     
+    print(f'SMTP config: host={smtp_host}, port={smtp_port}, user={smtp_user}, password={"*" * len(smtp_password) if smtp_password else None}')
+    
     if not all([smtp_host, smtp_user, smtp_password]):
         print('SMTP credentials not configured')
         return
