@@ -131,11 +131,18 @@ export const course = {
 };
 
 export const payment = {
-  createPayment: async (userId: number, amount: number, email: string, returnUrl: string) => {
+  createPayment: async (userId: number, amount: number, email: string, returnUrl: string, name?: string, productType?: string) => {
     const response = await fetch(`${API_BASE.payment}?action=create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, amount, email, return_url: returnUrl }),
+      body: JSON.stringify({ 
+        user_id: userId, 
+        amount, 
+        email, 
+        return_url: returnUrl,
+        name: name || 'Клиент',
+        product_type: productType || 'course'
+      }),
     });
     return response.json();
   },

@@ -1,0 +1,18 @@
+{
+  "type": "notification",
+  "event": "payment.succeeded",
+  "object": {
+    "id": "test-payment-12345",
+    "status": "succeeded",
+    "paid": true,
+    "amount": {
+      "value": "2999.00",
+      "currency": "RUB"
+    },
+    "metadata": {
+      "user_id": "1",
+      "email": "v89661655608@gmail.com",
+      "product_type": "course"
+    }
+  }
+}

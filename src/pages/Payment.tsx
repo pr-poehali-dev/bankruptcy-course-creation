@@ -96,7 +96,14 @@ export default function Payment() {
 
     try {
       const returnUrl = `${window.location.origin}/payment`;
-      const result = await payment.createPayment(user.id, currentService.price, user.email, returnUrl);
+      const result = await payment.createPayment(
+        user.id, 
+        currentService.price, 
+        user.email, 
+        returnUrl,
+        user.full_name,
+        serviceType
+      );
 
       if (result.error) {
         throw new Error(result.error);
