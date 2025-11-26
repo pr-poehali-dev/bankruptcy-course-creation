@@ -162,7 +162,9 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                     "value": f"{amount:.2f}",
                     "currency": "RUB"
                 },
-                "vat_code": 1
+                "vat_code": 1,
+                "payment_subject": "service",
+                "payment_mode": "full_payment"
             }]
         }
     
