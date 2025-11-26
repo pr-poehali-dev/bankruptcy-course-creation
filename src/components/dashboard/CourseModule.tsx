@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -72,6 +72,16 @@ export default function CourseModule({
   const moduleLessonsTotal = module.lessons.length;
   const moduleLessonsCompleted = module.lessons.filter(l => l.progress?.completed).length;
   const moduleProgress = moduleLessonsTotal > 0 ? (moduleLessonsCompleted / moduleLessonsTotal) * 100 : 0;
+  const [playbackRates, setPlaybackRates] = useState<{[key: number]: number}>({});
+
+  const changeSpeed = (lessonId: number) => {
+    const video = videoRefs.current[lessonId];
+    if (!video) return;
+    const currentRate = playbackRates[lessonId] || 1.0;
+    const newRate = currentRate === 1.0 ? 1.2 : 1.0;
+    video.playbackRate = newRate;
+    setPlaybackRates({...playbackRates, [lessonId]: newRate});
+  };
 
   return (
     <Card className="border-0 shadow-lg overflow-hidden">
@@ -209,6 +219,17 @@ export default function CourseModule({
                           onPause={() => onVideoPause(lesson.id)}
                           onEnded={() => onVideoEnded(lesson.id)}
                         />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => changeSpeed(lesson.id)}
+                          className="gap-2"
+                        >
+                          <Icon name="Gauge" size={16} />
+                          Скорость: {playbackRates[lesson.id] || 1.0}x
+                        </Button>
                       </div>
                       {lesson.progress?.watch_time_seconds > 0 && (
                         <div className="flex items-center gap-2">
