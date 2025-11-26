@@ -133,11 +133,27 @@ export const Dashboard = () => {
         const duration = Math.floor(video.duration);
         const completed = watchTime >= duration * 0.9;
         
+        setModules(prevModules => 
+          prevModules.map(module => ({
+            ...module,
+            lessons: module.lessons.map(lesson =>
+              lesson.id === lessonId
+                ? {
+                    ...lesson,
+                    progress: {
+                      completed,
+                      watch_time_seconds: watchTime,
+                    },
+                  }
+                : lesson
+            ),
+          }))
+        );
+        
         try {
           await course.updateProgress(token!, lessonId, completed, watchTime);
           if (completed) {
             clearInterval(progressIntervals.current[lessonId]);
-            loadCourseContent();
           }
         } catch (err) {
           console.error('Error updating progress:', err);
@@ -157,6 +173,23 @@ export const Dashboard = () => {
       const duration = Math.floor(video.duration);
       const completed = watchTime >= duration * 0.9;
       
+      setModules(prevModules => 
+        prevModules.map(module => ({
+          ...module,
+          lessons: module.lessons.map(lesson =>
+            lesson.id === lessonId
+              ? {
+                  ...lesson,
+                  progress: {
+                    completed,
+                    watch_time_seconds: watchTime,
+                  },
+                }
+              : lesson
+          ),
+        }))
+      );
+      
       course.updateProgress(token!, lessonId, completed, watchTime).catch(err => {
         console.error('Error saving progress on pause:', err);
       });
@@ -171,9 +204,26 @@ export const Dashboard = () => {
     const video = videoRefs.current[lessonId];
     if (video) {
       const watchTime = Math.floor(video.duration);
+      
+      setModules(prevModules => 
+        prevModules.map(module => ({
+          ...module,
+          lessons: module.lessons.map(lesson =>
+            lesson.id === lessonId
+              ? {
+                  ...lesson,
+                  progress: {
+                    completed: true,
+                    watch_time_seconds: watchTime,
+                  },
+                }
+              : lesson
+          ),
+        }))
+      );
+      
       try {
         await course.updateProgress(token!, lessonId, true, watchTime);
-        loadCourseContent();
       } catch (err) {
         console.error('Error marking as completed:', err);
       }
