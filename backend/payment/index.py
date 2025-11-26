@@ -166,6 +166,9 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
             }]
         }
     
+    print(f"Creating payment with YooKassa: shop_id={shop_id}, amount={amount}, email={email}")
+    print(f"Payment data: {json.dumps(payment_data, ensure_ascii=False)}")
+    
     response = requests.post(
         'https://api.yookassa.ru/v3/payments',
         json=payment_data,
@@ -176,11 +179,25 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
         }
     )
     
+    print(f"YooKassa response status: {response.status_code}")
+    print(f"YooKassa response body: {response.text}")
+    
     if response.status_code != 200:
+        error_details = response.text
+        try:
+            error_json = response.json()
+            error_details = json.dumps(error_json, ensure_ascii=False)
+        except:
+            pass
+        
         return {
             'statusCode': response.status_code,
             'headers': headers,
-            'body': json.dumps({'error': 'Payment creation failed', 'details': response.text})
+            'body': json.dumps({
+                'error': 'Payment creation failed', 
+                'details': error_details,
+                'yukassa_status': response.status_code
+            }, ensure_ascii=False)
         }
     
     payment_response = response.json()
