@@ -634,7 +634,7 @@ def send_course_credentials_email(user_email: str, user_name: str, password: str
         <div style="background: white; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #667eea;">
             <h2 style="margin-top: 0; color: #667eea; font-size: 20px;">📝 Ваши данные для входа:</h2>
             
-            <p style="margin: 15px 0;"><strong>Сайт:</strong> <a href="https://bankrot-kurs.online/dashboard" style="color: #667eea; text-decoration: none;">bankrot-kurs.online/dashboard</a></p>
+            <p style="margin: 15px 0;"><strong>Сайт:</strong> <a href="https://bankrot-kurs.ru/login" style="color: #667eea; text-decoration: none;">bankrot-kurs.ru/login</a></p>
             
             <p style="margin: 15px 0;"><strong>Email:</strong> <span style="background: #f0f0f0; padding: 5px 10px; border-radius: 4px; font-family: monospace;">{user_email}</span></p>
             
@@ -660,7 +660,7 @@ def send_course_credentials_email(user_email: str, user_name: str, password: str
         </p>
         
         <div style="text-align: center; margin-top: 30px;">
-            <a href="https://bankrot-kurs.online/login" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Начать обучение</a>
+            <a href="https://bankrot-kurs.ru/login" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Начать обучение</a>
         </div>
         
         <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #999;">
