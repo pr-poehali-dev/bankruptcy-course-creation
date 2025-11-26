@@ -77,8 +77,8 @@ export default function VideoSection() {
               }}
               onPause={() => setIsPlaying(false)}
             >
-              <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/mp4" />
-              <source src="https://storage.yandexcloud.net/poehalidev-user-files/copy_46B4D96E-25E4-491B-81D1-4486E8F5D8FD.MOV" type="video/quicktime" />
+              <source src="https://storage.yandexcloud.net/poehalidev-user-files/%D0%A1%D0%B0%D0%B9%D1%82.MOV" type="video/quicktime" />
+              <source src="https://storage.yandexcloud.net/poehalidev-user-files/%D0%A1%D0%B0%D0%B9%D1%82.MOV" type="video/mp4" />
               Ваш браузер не поддерживает видео.
             </video>
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/10 via-transparent to-black/10"></div>
