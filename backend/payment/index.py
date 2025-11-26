@@ -340,12 +340,6 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
             conn_main = get_db_connection()
             try:
                 with conn_main.cursor(cursor_factory=RealDictCursor) as cur:
-                    cur.execute(
-                        "SELECT password FROM users WHERE id = %s",
-                        (int(user_id),)
-                    )
-                    user_data = cur.fetchone()
-                    
                     temp_password = str(uuid.uuid4())[:8]
                     temp_password_hash = bcrypt.hashpw(temp_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                     
