@@ -7,7 +7,7 @@ Returns: Success message or error
 import json
 import os
 import psycopg2
-import hashlib
+import bcrypt
 import secrets
 from datetime import datetime, timedelta
 from typing import Dict, Any
@@ -146,7 +146,7 @@ def confirm_reset(body: Dict[str, Any]) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Токен истек'})
             }
         
-        password_hash = hashlib.sha256(new_password.encode()).hexdigest()
+        password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
         cursor.execute(
             "UPDATE users SET password_hash = %s WHERE id = %s",
