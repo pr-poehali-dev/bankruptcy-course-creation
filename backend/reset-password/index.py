@@ -185,7 +185,7 @@ def send_reset_email(email: str, name: str, token: str) -> None:
         print('SMTP credentials not configured')
         return
     
-    reset_url = f"https://juridix.poehali.app/reset-password?token={token}"
+    reset_url = f"https://bankrot-kurs.ru/reset-password?token={token}"
     
     html_content = f'''
     <html>
