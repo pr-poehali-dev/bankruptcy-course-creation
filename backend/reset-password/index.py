@@ -174,10 +174,12 @@ def send_reset_email(email: str, name: str, token: str) -> None:
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = int(os.environ.get('SMTP_PORT', 465))
     smtp_user = os.environ.get('SMTP_USER')
     smtp_password = os.environ.get('SMTP_PASSWORD')
     
-    if not smtp_user or not smtp_password:
+    if not all([smtp_host, smtp_user, smtp_password]):
         print('SMTP credentials not configured')
         return
     
@@ -204,11 +206,10 @@ def send_reset_email(email: str, name: str, token: str) -> None:
     msg['From'] = smtp_user
     msg['To'] = email
     
-    msg.attach(MIMEText(html_content, 'html'))
+    msg.attach(MIMEText(html_content, 'html', 'utf-8'))
     
     try:
-        with smtplib.SMTP('smtp.yandex.ru', 587) as server:
-            server.starttls()
+        with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
             server.login(smtp_user, smtp_password)
             server.send_message(msg)
     except Exception as e:
