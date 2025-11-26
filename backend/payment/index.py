@@ -239,7 +239,11 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
 def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     
+    print(f"[WEBHOOK] Received webhook event: {body_data.get('event')}")
+    print(f"[WEBHOOK] Full body: {json.dumps(body_data, ensure_ascii=False)}")
+    
     if body_data.get('event') != 'payment.succeeded':
+        print(f"[WEBHOOK] Ignoring event: {body_data.get('event')}")
         return {
             'statusCode': 200,
             'headers': headers,
@@ -249,6 +253,8 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
     payment = body_data.get('object', {})
     payment_id = payment.get('id')
     user_id = payment.get('metadata', {}).get('user_id')
+    
+    print(f"[WEBHOOK] Processing payment: payment_id={payment_id}, user_id={user_id}")
     
     if not payment_id or not user_id:
         return {
@@ -337,6 +343,7 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                 )
         
         if current_product_type in ['course', 'combo']:
+            print(f"[WEBHOOK] Sending course credentials to {user['email']}")
             conn_main = get_db_connection()
             try:
                 with conn_main.cursor(cursor_factory=RealDictCursor) as cur:
@@ -349,11 +356,13 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                     )
                     conn_main.commit()
                     
+                    print(f"[WEBHOOK] Password updated, sending email with password: {temp_password}")
                     send_course_credentials_email(
                         user_email=user['email'],
                         user_name=user['full_name'],
                         password=temp_password
                     )
+                    print(f"[WEBHOOK] Email sent successfully!")
             finally:
                 conn_main.close()
     
