@@ -16,6 +16,7 @@ import uuid
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import bcrypt
 
 def get_db_connection():
     return psycopg2.connect(os.environ['DATABASE_URL'])
@@ -99,9 +100,10 @@ def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                     user_id = existing_user['id']
                 else:
                     password = str(uuid.uuid4())[:8]
+                    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                     cur.execute(
-                        "INSERT INTO users (email, password, full_name, is_admin) VALUES (%s, crypt(%s, gen_salt('bf')), %s, false) RETURNING id",
-                        (email, password, full_name)
+                        "INSERT INTO users (email, password_hash, full_name, is_admin) VALUES (%s, %s, %s, false) RETURNING id",
+                        (email, password_hash, full_name)
                     )
                     user_id = cur.fetchone()['id']
                     conn.commit()
@@ -326,10 +328,11 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                     user_data = cur.fetchone()
                     
                     temp_password = str(uuid.uuid4())[:8]
+                    temp_password_hash = bcrypt.hashpw(temp_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                     
                     cur.execute(
-                        "UPDATE users SET password = crypt(%s, gen_salt('bf')) WHERE id = %s",
-                        (temp_password, int(user_id))
+                        "UPDATE users SET password_hash = %s WHERE id = %s",
+                        (temp_password_hash, int(user_id))
                     )
                     conn_main.commit()
                     
