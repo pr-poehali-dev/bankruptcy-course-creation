@@ -71,12 +71,12 @@ export default function ChatSupportSection({ user }: ChatSupportSectionProps) {
                   Специально разработанное приложение для комфортной работы с телефона
                 </p>
                 <a 
-                  href="https://bankrot-kurs.online" 
+                  href="https://chat-bankrot.ru" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-sm text-accent hover:underline font-medium"
                 >
-                  bankrot-kurs.online →
+                  chat-bankrot.ru →
                 </a>
               </div>
 
