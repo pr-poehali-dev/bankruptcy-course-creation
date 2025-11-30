@@ -81,6 +81,13 @@ const Admin = () => {
       navigate('/login');
       return;
     }
+    
+    const isAdminAuthenticated = sessionStorage.getItem('admin_authenticated');
+    if (!isAdminAuthenticated) {
+      navigate('/admin-login');
+      return;
+    }
+    
     loadModules();
     loadLessons();
     loadFiles();

@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request returns CORS headers",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "POST with incorrect password returns success false",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "password": "wrong_password"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": false
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

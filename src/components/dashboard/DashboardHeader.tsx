@@ -30,7 +30,7 @@ export default function DashboardHeader({ user, onLogout }: DashboardHeaderProps
           
           <div className="flex items-center gap-2">
             {user?.is_admin && (
-              <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/admin-login')}>
                 <Icon name="Settings" size={16} className="mr-2" />
                 Админка
               </Button>
