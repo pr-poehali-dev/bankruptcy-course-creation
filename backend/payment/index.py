@@ -2,6 +2,14 @@
 Business: Payment API - create payments via YooKassa, handle webhooks
 Args: event with httpMethod, body, headers; context with request_id
 Returns: Payment creation response or webhook processing status
+
+CRITICAL SETUP REQUIRED:
+1. Go to yookassa.ru personal cabinet
+2. Settings -> HTTP notifications (Настройки -> HTTP-уведомления)
+3. Set webhook URL: https://functions.poehali.dev/b3f3dab4-093d-45bf-98cb-86512e00886b?action=webhook
+4. Enable notifications for: payment.succeeded
+
+Without this setup, webhooks will NOT work and users will NOT receive access after payment!
 '''
 
 import json
@@ -326,11 +334,27 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
         
         chat_token_data = None
         if current_product_type in ['chat', 'combo']:
-            chat_token_data = create_chat_token(
-                user_id=int(user_id),
-                user_email=user['email'],
-                product_type=current_product_type
-            )
+            if current_product_type == 'combo':
+                print(f"[WEBHOOK] Getting token from external chat system for combo")
+                chat_token_data = register_in_chat_system(
+                    email=user['email'],
+                    amount=amount_value
+                )
+                
+                if not chat_token_data:
+                    print(f"[WEBHOOK] Failed to get token from external system, creating local token as fallback")
+                    chat_token_data = create_chat_token(
+                        user_id=int(user_id),
+                        user_email=user['email'],
+                        product_type=current_product_type
+                    )
+            else:
+                print(f"[WEBHOOK] Creating local token for chat-only purchase")
+                chat_token_data = create_chat_token(
+                    user_id=int(user_id),
+                    user_email=user['email'],
+                    product_type=current_product_type
+                )
             
             if chat_token_data and current_product_type == 'chat':
                 send_chat_token_email(
@@ -338,12 +362,6 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                     user_name=user['full_name'],
                     chat_token=chat_token_data['token'],
                     product_type=current_product_type
-                )
-            
-            if current_product_type == 'combo':
-                register_in_chat_system(
-                    email=user['email'],
-                    amount=amount_value
                 )
         
         if current_product_type in ['course', 'combo']:
@@ -746,7 +764,7 @@ def send_admin_notification(user_email: str, user_name: str, amount: float, paym
         pass
 
 def register_in_chat_system(email: str, amount: float):
-    '''Call external bankrot chat webhook to register combo purchase'''
+    '''Call external bankrot chat webhook to register combo purchase and get token'''
     webhook_url = 'https://functions.poehali.dev/66d27e23-0698-4d41-8708-9c7e34148508'
     api_key = 'bankrot_combo_secret_2025'
     
@@ -765,9 +783,23 @@ def register_in_chat_system(email: str, amount: float):
         print(f"[CHAT_WEBHOOK] Response body: {response.text}")
         
         if response.status_code == 200:
-            print(f"[CHAT_WEBHOOK] Successfully registered {email} in chat")
+            response_data = response.json()
+            token = response_data.get('token')
+            expires_at_str = response_data.get('expires_at')
+            
+            if token and expires_at_str:
+                from datetime import datetime
+                expires_at = datetime.fromisoformat(expires_at_str.replace('Z', '+00:00'))
+                print(f"[CHAT_WEBHOOK] Successfully registered {email} in chat, token: {token}")
+                return {'token': token, 'expires_at': expires_at}
+            else:
+                print(f"[CHAT_WEBHOOK] Response missing token or expires_at")
+                return None
         else:
             print(f"[CHAT_WEBHOOK] Failed to register {email}: {response.text}")
+            return None
     except Exception as e:
         print(f"[CHAT_WEBHOOK] Error calling chat webhook: {e}")
-        pass
+        import traceback
+        print(f"[CHAT_WEBHOOK] Traceback: {traceback.format_exc()}")
+        return None
