@@ -341,7 +341,16 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                     amount=amount_value
                 )
                 
-                if not chat_token_data:
+                if chat_token_data:
+                    print(f"[WEBHOOK] External chat token received: {chat_token_data['token']}, saving to DB")
+                    save_external_chat_token(
+                        user_id=int(user_id),
+                        user_email=user['email'],
+                        token=chat_token_data['token'],
+                        expires_at=chat_token_data['expires_at'],
+                        product_type=current_product_type
+                    )
+                else:
                     print(f"[WEBHOOK] Failed to get token from external system, creating local token as fallback")
                     chat_token_data = create_chat_token(
                         user_id=int(user_id),
@@ -535,6 +544,34 @@ def create_chat_token(user_id: int, user_email: str, product_type: str):
     except Exception as e:
         print(f"Error creating chat token: {e}")
         return None
+    finally:
+        conn.close()
+
+def save_external_chat_token(user_id: int, user_email: str, token: str, expires_at: datetime, product_type: str):
+    '''Save external chat token (from bankrot-kurs.ru) to our database'''
+    conn = get_db_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """INSERT INTO chat_tokens 
+                (user_id, email, token, product_type, expires_at) 
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (token) DO UPDATE SET
+                    user_id = EXCLUDED.user_id,
+                    email = EXCLUDED.email,
+                    product_type = EXCLUDED.product_type,
+                    expires_at = EXCLUDED.expires_at
+                RETURNING token""",
+                (user_id, user_email, token, product_type, expires_at)
+            )
+            conn.commit()
+            print(f"[DB] Saved external chat token for user {user_id}: {token}")
+            return True
+    except Exception as e:
+        print(f"[DB] Error saving external chat token: {e}")
+        import traceback
+        print(f"[DB] Traceback: {traceback.format_exc()}")
+        return False
     finally:
         conn.close()
 
