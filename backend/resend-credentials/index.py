@@ -65,6 +65,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'User not found'})
                     }
                 
+                cur.execute(
+                    "SELECT product_type FROM user_purchases WHERE user_id = %s AND payment_status = 'completed' ORDER BY purchase_date DESC LIMIT 1",
+                    (user['id'],)
+                )
+                purchase = cur.fetchone()
+                product_type = purchase['product_type'] if purchase else 'course'
+                
+                chat_token_data = None
+                if product_type == 'combo':
+                    cur.execute(
+                        "SELECT token, expires_at FROM chat_tokens WHERE user_id = %s ORDER BY created_at DESC LIMIT 1",
+                        (user['id'],)
+                    )
+                    token_row = cur.fetchone()
+                    if token_row:
+                        chat_token_data = {'token': token_row['token'], 'expires_at': token_row['expires_at']}
+                
                 temp_password = str(uuid.uuid4())[:8]
                 temp_password_hash = bcrypt.hashpw(temp_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 
@@ -77,7 +94,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 send_course_credentials_email(
                     user_email=user['email'],
                     user_name=user['full_name'],
-                    password=temp_password
+                    password=temp_password,
+                    product_type=product_type,
+                    chat_token_data=chat_token_data
                 )
                 
                 return {
@@ -103,7 +122,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             })
         }
 
-def send_course_credentials_email(user_email: str, user_name: str, password: str):
+def send_course_credentials_email(user_email: str, user_name: str, password: str, product_type: str = 'course', chat_token_data: dict = None):
     smtp_host = os.environ.get('SMTP_HOST')
     smtp_port = int(os.environ.get('SMTP_PORT', 465))
     smtp_user = os.environ.get('SMTP_USER')
@@ -117,6 +136,42 @@ def send_course_credentials_email(user_email: str, user_name: str, password: str
         raise Exception("SMTP not configured")
     
     subject = 'Доступ к курсу "Банкротство физических лиц"'
+    
+    chat_bonus_block = ''
+    if product_type == 'combo' and chat_token_data:
+        expires_date = chat_token_data['expires_at'].strftime('%d.%m.%Y')
+        chat_bonus_block = f'''
+        <div style="background: linear-gradient(135deg, #e8f4fd 0%, #e0f2f1 100%); padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #00897b;">
+            <h2 style="margin-top: 0; color: #00897b; font-size: 20px;">💬 БОНУС: ДОСТУП К ЗАКРЫТОМУ ЧАТУ С ЮРИСТАМИ</h2>
+            
+            <p style="margin: 15px 0;">
+                <strong>Ваш токен доступа:</strong><br>
+                <span style="background: #fff3cd; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 14px; display: inline-block; word-break: break-all;">{chat_token_data['token']}</span>
+            </p>
+            
+            <p style="margin: 15px 0;">
+                <strong>Ссылка на чат:</strong> <a href="https://chat-bankrot.ru" style="color: #00897b; text-decoration: none; font-weight: bold;">chat-bankrot.ru</a>
+            </p>
+            
+            <p style="margin: 15px 0;">
+                <strong>Действителен до:</strong> {expires_date}
+            </p>
+            
+            <div style="background: white; padding: 20px; border-radius: 6px; margin-top: 20px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #333;">Как войти в чат:</h3>
+                <ol style="margin: 10px 0; padding-left: 20px;">
+                    <li style="margin: 8px 0;">Перейдите на <a href="https://chat-bankrot.ru" style="color: #00897b;">chat-bankrot.ru</a></li>
+                    <li style="margin: 8px 0;">Нажмите "Войти с токеном"</li>
+                    <li style="margin: 8px 0;">Вставьте ваш токен в поле для входа</li>
+                    <li style="margin: 8px 0;">Задавайте вопросы юристам в чате!</li>
+                </ol>
+            </div>
+            
+            <p style="font-size: 13px; color: #666; margin-top: 15px;">
+                ⚠️ Сохраните токен — он понадобится для входа в чат
+            </p>
+        </div>
+        '''
     
     html_body = f'''
 <!DOCTYPE html>
@@ -153,6 +208,8 @@ def send_course_credentials_email(user_email: str, user_name: str, password: str
                 <li style="margin: 8px 0;">Доступ на 6 месяцев</li>
             </ul>
         </div>
+        
+        {chat_bonus_block}
         
         <p style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
             <strong>Важно:</strong> Сохраните это письмо — в нём содержится пароль для входа в личный кабинет.
