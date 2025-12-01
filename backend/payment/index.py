@@ -73,7 +73,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 def create_payment(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     user_id = body_data.get('user_id')
-    amount = body_data.get('amount', 2999)
+    amount = body_data.get('amount', 4999)
     email = body_data.get('email', '')
     full_name = body_data.get('name', 'Клиент')
     return_url = body_data.get('return_url', '')
