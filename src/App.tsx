@@ -47,7 +47,7 @@ const App = () => (
             <Route path="/personal-data-consent" element={<PersonalDataConsent />} />
             <Route path="/requisites" element={<Requisites />} />
             <Route path="/payment" element={<Payment />} />
-            <Route path="/payment/form" element={<PaymentForm />} />
+            <Route path="/payment-form" element={<PaymentForm />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
