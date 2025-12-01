@@ -338,6 +338,12 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
                     chat_token=chat_token,
                     product_type=current_product_type
                 )
+            
+            if current_product_type == 'combo':
+                register_in_chat_system(
+                    email=user['email'],
+                    amount=amount_value
+                )
         
         if current_product_type in ['course', 'combo']:
             print(f"[WEBHOOK] Sending course credentials to {user['email']}")
@@ -694,4 +700,31 @@ def send_admin_notification(user_email: str, user_name: str, amount: float, paym
             timeout=5
         )
     except Exception as e:
+        pass
+
+def register_in_chat_system(email: str, amount: float):
+    '''Call external bankrot chat webhook to register combo purchase'''
+    webhook_url = 'https://functions.poehali.dev/66d27e23-0698-4d41-8708-9c7e34148508'
+    api_key = 'bankrot_combo_secret_2025'
+    
+    try:
+        print(f"[CHAT_WEBHOOK] Registering user {email} in chat system")
+        response = requests.post(
+            webhook_url,
+            json={'email': email, 'amount': amount},
+            headers={
+                'X-Api-Key': api_key,
+                'Content-Type': 'application/json'
+            },
+            timeout=10
+        )
+        print(f"[CHAT_WEBHOOK] Response status: {response.status_code}")
+        print(f"[CHAT_WEBHOOK] Response body: {response.text}")
+        
+        if response.status_code == 200:
+            print(f"[CHAT_WEBHOOK] Successfully registered {email} in chat")
+        else:
+            print(f"[CHAT_WEBHOOK] Failed to register {email}: {response.text}")
+    except Exception as e:
+        print(f"[CHAT_WEBHOOK] Error calling chat webhook: {e}")
         pass
