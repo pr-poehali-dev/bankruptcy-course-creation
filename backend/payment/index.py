@@ -648,12 +648,15 @@ def send_chat_token_email(user_email: str, user_name: str, chat_token: str, prod
         
         msg.attach(MIMEText(html_body, 'html', 'utf-8'))
         
+        print(f"[EMAIL] Sending chat token to {user_email}")
         with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
             server.login(smtp_user, smtp_password)
             server.send_message(msg)
+        print(f"[EMAIL] Successfully sent chat token to {user_email}")
     except Exception as e:
-        print(f"Error sending chat token email: {e}")
-        pass
+        print(f"[EMAIL] Error sending chat token to {user_email}: {e}")
+        import traceback
+        print(f"[EMAIL] Traceback: {traceback.format_exc()}")
 
 def send_course_credentials_email(user_email: str, user_name: str, password: str, product_type: str = 'course', chat_token_data: dict = None):
     smtp_host = os.environ.get('SMTP_HOST')
@@ -770,11 +773,15 @@ def send_course_credentials_email(user_email: str, user_name: str, password: str
         
         msg.attach(MIMEText(html_body, 'html', 'utf-8'))
         
+        print(f"[EMAIL] Sending course credentials to {user_email}")
         with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
             server.login(smtp_user, smtp_password)
             server.send_message(msg)
-    except:
-        pass
+        print(f"[EMAIL] Successfully sent course credentials to {user_email}")
+    except Exception as e:
+        print(f"[EMAIL] Error sending course credentials to {user_email}: {e}")
+        import traceback
+        print(f"[EMAIL] Traceback: {traceback.format_exc()}")
 
 def send_admin_notification(user_email: str, user_name: str, amount: float, payment_id: str):
     admin_notify_url = 'https://functions.poehali.dev/d7308d73-82be-4249-9c4d-bd4ea5a81921'
