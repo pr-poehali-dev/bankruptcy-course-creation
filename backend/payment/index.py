@@ -325,20 +325,17 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
         )
         
         if current_product_type in ['chat', 'combo']:
-            chat_password = grant_chat_access_in_bankrot_app(
+            chat_token = create_chat_token(
+                user_id=int(user_id),
                 user_email=user['email'],
-                user_name=user['full_name'],
-                amount=amount_value,
-                payment_id=payment_id,
-                product_type=current_product_type,
-                user_id=int(user_id)
+                product_type=current_product_type
             )
             
-            if chat_password:
-                send_chat_credentials_email(
+            if chat_token:
+                send_chat_token_email(
                     user_email=user['email'],
                     user_name=user['full_name'],
-                    password=chat_password,
+                    chat_token=chat_token,
                     product_type=current_product_type
                 )
         
@@ -490,40 +487,29 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
         })
     }
 
-def grant_chat_access_in_bankrot_app(user_email: str, user_name: str, amount: float, payment_id: str, product_type: str, user_id: int):
-    if product_type not in ['chat', 'combo']:
-        return None
+def create_chat_token(user_id: int, user_email: str, product_type: str):
+    token = str(uuid.uuid4())
     
-    bankrot_db_url = os.environ.get('BANKROT_DATABASE_URL')
-    if not bankrot_db_url:
-        return None
-    
-    generated_password = str(uuid.uuid4())[:8]
-    
+    conn = get_db_connection()
     try:
-        conn = psycopg2.connect(bankrot_db_url)
-        try:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                duration_days = 30
-                
-                cur.execute(
-                    """INSERT INTO chat_access 
-                    (client_name, client_email, telegram_username, access_start, access_end, 
-                     is_active, payment_amount, notes, user_id, password) 
-                    VALUES (%s, %s, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 days', 
-                            true, %s, %s, NULL, %s)
-                    RETURNING id""",
-                    (user_name, user_email, amount, f'Оплата через внешний сайт. Payment ID: {payment_id}', generated_password)
-                )
-                chat_access_id = cur.fetchone()['id']
-                conn.commit()
-                return generated_password
-        finally:
-            conn.close()
-    except:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """INSERT INTO chat_tokens 
+                (user_id, email, token, product_type, expires_at) 
+                VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP + INTERVAL '30 days')
+                RETURNING token""",
+                (user_id, user_email, token, product_type)
+            )
+            result = cur.fetchone()
+            conn.commit()
+            return result['token'] if result else None
+    except Exception as e:
+        print(f"Error creating chat token: {e}")
         return None
+    finally:
+        conn.close()
 
-def send_chat_credentials_email(user_email: str, user_name: str, password: str, product_type: str):
+def send_chat_token_email(user_email: str, user_name: str, chat_token: str, product_type: str):
     smtp_host = os.environ.get('SMTP_HOST')
     smtp_port = int(os.environ.get('SMTP_PORT', 465))
     smtp_user = os.environ.get('SMTP_USER')
@@ -532,7 +518,8 @@ def send_chat_credentials_email(user_email: str, user_name: str, password: str, 
     if not all([smtp_host, smtp_user, smtp_password]):
         return
     
-    subject = 'Доступ к чату с юристами — bankrot-kurs.online'
+    chat_url = f'https://chat-bankrot.ru/?token={chat_token}'
+    subject = 'Доступ к чату с юристами — bankrot-kurs.ru'
     
     html_body = f'''
 <!DOCTYPE html>
@@ -542,35 +529,31 @@ def send_chat_credentials_email(user_email: str, user_name: str, password: str, 
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Добро пожаловать!</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Добро пожаловать в чат!</h1>
     </div>
     
     <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
         <p style="font-size: 16px; margin-bottom: 20px;">Здравствуйте, <strong>{user_name}</strong>!</p>
         
-        <p style="font-size: 16px; margin-bottom: 20px;">Спасибо за оплату! Ваш доступ к чату с юристами активирован на <strong>30 дней</strong>.</p>
+        <p style="font-size: 16px; margin-bottom: 20px;">Спасибо за оплату! Ваш доступ к закрытому чату с юристами активирован на <strong>30 дней</strong>.</p>
         
         <div style="background: white; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #667eea;">
-            <h2 style="margin-top: 0; color: #667eea; font-size: 20px;">📝 Ваши данные для входа:</h2>
+            <h2 style="margin-top: 0; color: #667eea; font-size: 20px;">🔑 Ваш токен доступа:</h2>
             
-            <p style="margin: 15px 0;"><strong>Сайт:</strong> <a href="https://bankrot-kurs.online" style="color: #667eea; text-decoration: none;">bankrot-kurs.online</a></p>
-            
-            <p style="margin: 15px 0;"><strong>Email:</strong> <span style="background: #f0f0f0; padding: 5px 10px; border-radius: 4px; font-family: monospace;">{user_email}</span></p>
-            
-            <p style="margin: 15px 0;"><strong>Пароль:</strong> <span style="background: #fff3cd; padding: 5px 10px; border-radius: 4px; font-family: monospace; font-weight: bold;">{password}</span></p>
+            <p style="margin: 15px 0;"><strong>Токен:</strong><br><span style="background: #fff3cd; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 12px; display: inline-block; word-break: break-all;">{chat_token}</span></p>
         </div>
         
         <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 25px 0;">
-            <h3 style="margin-top: 0; color: #0066cc; font-size: 18px;">💬 Как начать:</h3>
+            <h3 style="margin-top: 0; color: #0066cc; font-size: 18px;">💬 Как войти в чат:</h3>
             <ol style="margin: 10px 0; padding-left: 20px;">
-                <li style="margin: 8px 0;">Перейдите на сайт <a href="https://bankrot-kurs.online" style="color: #0066cc;">bankrot-kurs.online</a></li>
-                <li style="margin: 8px 0;">Войдите используя ваш email и пароль</li>
-                <li style="margin: 8px 0;">Задавайте вопросы юристам в чате</li>
+                <li style="margin: 8px 0;">Нажмите кнопку "Войти в чат" ниже</li>
+                <li style="margin: 8px 0;">Вставьте ваш токен в поле для входа</li>
+                <li style="margin: 8px 0;">Задавайте вопросы юристам в чате!</li>
             </ol>
         </div>
         
         <p style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-            <strong>Важно:</strong> Сохраните это письмо — в нём содержится пароль для входа в систему.
+            <strong>⚠️ Важно:</strong> Сохраните это письмо — в нём содержится токен для входа в чат. Доступ действует 30 дней.
         </p>
         
         <p style="font-size: 14px; color: #666; margin-top: 15px;">
@@ -578,12 +561,13 @@ def send_chat_credentials_email(user_email: str, user_name: str, password: str, 
         </p>
         
         <div style="text-align: center; margin-top: 30px;">
-            <a href="https://bankrot-kurs.online" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Войти в чат</a>
+            <a href="{chat_url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">💬 Войти в чат</a>
         </div>
         
         <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #999;">
             С уважением,<br>
-            <strong>Команда bankrot-kurs.online</strong>
+            <strong>Валентина Голосова</strong><br>
+            Арбитражный управляющий
         </p>
     </div>
 </body>
@@ -601,7 +585,8 @@ def send_chat_credentials_email(user_email: str, user_name: str, password: str, 
         with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
             server.login(smtp_user, smtp_password)
             server.send_message(msg)
-    except:
+    except Exception as e:
+        print(f"Error sending chat token email: {e}")
         pass
 
 def send_course_credentials_email(user_email: str, user_name: str, password: str):

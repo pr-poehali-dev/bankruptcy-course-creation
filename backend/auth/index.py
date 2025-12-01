@@ -53,6 +53,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
         
         elif method == 'GET':
+            params = event.get('queryStringParameters') or {}
+            chat_token = params.get('chat_token')
+            
+            if chat_token:
+                return verify_chat_token(chat_token, headers)
+            
             auth_token = event.get('headers', {}).get('X-Auth-Token') or event.get('headers', {}).get('x-auth-token')
             if not auth_token:
                 return {
@@ -242,3 +248,78 @@ def generate_token(user: Dict[str, Any]) -> str:
     }
     
     return jwt.encode(payload, jwt_secret, algorithm='HS256')
+
+def verify_chat_token(token: str, headers: Dict[str, str]) -> Dict[str, Any]:
+    if not token:
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': 'Token is required', 'valid': False})
+        }
+    
+    conn = get_db_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """SELECT ct.id, ct.user_id, ct.email, ct.product_type, ct.expires_at, ct.is_active, ct.created_at,
+                          u.full_name
+                   FROM chat_tokens ct
+                   JOIN users u ON ct.user_id = u.id
+                   WHERE ct.token = %s""",
+                (token,)
+            )
+            token_data = cur.fetchone()
+            
+            if not token_data:
+                return {
+                    'statusCode': 404,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Token not found', 'valid': False})
+                }
+            
+            if not token_data['is_active']:
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Token is deactivated', 'valid': False})
+                }
+            
+            if token_data['expires_at'] < datetime.now():
+                cur.execute(
+                    "UPDATE chat_tokens SET is_active = false WHERE id = %s",
+                    (token_data['id'],)
+                )
+                conn.commit()
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Token expired', 'valid': False})
+                }
+            
+            cur.execute(
+                "UPDATE chat_tokens SET last_used_at = CURRENT_TIMESTAMP WHERE id = %s",
+                (token_data['id'],)
+            )
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({
+                    'valid': True,
+                    'user_id': token_data['user_id'],
+                    'email': token_data['email'],
+                    'full_name': token_data['full_name'],
+                    'product_type': token_data['product_type'],
+                    'expires_at': token_data['expires_at'].isoformat(),
+                    'created_at': token_data['created_at'].isoformat()
+                })
+            }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'error': str(e), 'valid': False})
+        }
+    finally:
+        conn.close()
