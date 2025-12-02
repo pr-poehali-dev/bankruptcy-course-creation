@@ -1,8 +1,8 @@
 '''
-Business: Отправка уведомлений в Telegram клиентам с истекающим доступом
-Args: event - dict с httpMethod
+Business: Chat management - send Telegram notifications and register combo purchases
+Args: event - dict с httpMethod, queryStringParameters (action=notify|register)
       context - object с attributes: request_id, function_name
-Returns: HTTP response dict с количеством отправленных уведомлений
+Returns: HTTP response dict с количеством отправленных уведомлений или token data
 '''
 
 import json
@@ -13,6 +13,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import urllib.request
 import urllib.parse
+import string
+import secrets
 
 def get_db_connection():
     database_url = os.environ.get('DATABASE_URL')
@@ -59,7 +61,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Api-Key',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
@@ -69,6 +71,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     }
+    
+    params = event.get('queryStringParameters') or {}
+    action = params.get('action', 'notify')
+    
+    if action == 'register':
+        return handle_register(event, headers)
     
     bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     if not bot_token:
@@ -165,4 +173,76 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': headers,
             'isBase64Encoded': False,
             'body': json.dumps({'error': str(e)})
+        }
+
+def generate_custom_token(email: str, amount: float) -> str:
+    '''Generate custom token format: {random}_manual_combo_{date}_{email_part}'''
+    random_part = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(10))
+    date_part = datetime.utcnow().strftime('%b%d')
+    email_part = email.split('@')[0].replace('.', '').replace('-', '')[:8] if '@' in email else 'user'
+    token = f"{random_part}_manual_combo_{date_part}_{email_part}"
+    return token
+
+def handle_register(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, Any]:
+    '''Handle combo purchase registration and token generation'''
+    api_key = event.get('headers', {}).get('X-Api-Key') or event.get('headers', {}).get('x-api-key')
+    expected_key = 'bankrot_combo_secret_2025'
+    
+    if api_key != expected_key:
+        return {
+            'statusCode': 401,
+            'headers': headers,
+            'body': json.dumps({'success': False, 'error': 'Invalid API key'})
+        }
+    
+    if event.get('httpMethod') != 'POST':
+        return {
+            'statusCode': 405,
+            'headers': headers,
+            'body': json.dumps({'success': False, 'error': 'Method not allowed'})
+        }
+    
+    try:
+        body_data = json.loads(event.get('body', '{}'))
+        email = body_data.get('email')
+        amount = body_data.get('amount', 0)
+        
+        if not email:
+            return {
+                'statusCode': 400,
+                'headers': headers,
+                'body': json.dumps({'success': False, 'error': 'Email is required'})
+            }
+        
+        token = generate_custom_token(email, amount)
+        expires_at = datetime.utcnow() + timedelta(days=30)
+        expires_at_iso = expires_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+        chat_url = f'https://chat-bankrot.ru/?token={token}'
+        
+        print(f"[CHAT-REGISTER] Generated token for {email}: {token}")
+        print(f"[CHAT-REGISTER] Amount: {amount}, Expires: {expires_at_iso}")
+        
+        return {
+            'statusCode': 200,
+            'headers': headers,
+            'body': json.dumps({
+                'success': True,
+                'token': token,
+                'chat_url': chat_url,
+                'expires_at': expires_at_iso
+            })
+        }
+    
+    except Exception as e:
+        import traceback
+        print(f"[CHAT-REGISTER] Error: {e}")
+        print(f"[CHAT-REGISTER] Traceback: {traceback.format_exc()}")
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({
+                'success': False,
+                'error': str(e),
+                'type': type(e).__name__
+            })
         }
