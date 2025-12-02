@@ -334,44 +334,24 @@ def handle_webhook(event: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, 
         
         chat_token_data = None
         if current_product_type in ['chat', 'combo']:
-            if current_product_type == 'combo':
-                print(f"[WEBHOOK] Getting token from external chat system for combo")
-                chat_token_data = register_in_chat_system(
-                    email=user['email'],
-                    amount=amount_value
-                )
-                
-                if chat_token_data:
-                    print(f"[WEBHOOK] External chat token received: {chat_token_data['token']}, saving to DB")
-                    save_external_chat_token(
-                        user_id=int(user_id),
-                        user_email=user['email'],
-                        token=chat_token_data['token'],
-                        expires_at=chat_token_data['expires_at'],
-                        product_type=current_product_type
-                    )
-                else:
-                    print(f"[WEBHOOK] Failed to get token from external system, creating local token as fallback")
-                    chat_token_data = create_chat_token(
-                        user_id=int(user_id),
-                        user_email=user['email'],
-                        product_type=current_product_type
-                    )
-            else:
-                print(f"[WEBHOOK] Creating local token for chat-only purchase")
-                chat_token_data = create_chat_token(
+            print(f"[WEBHOOK] Getting token from external chat system (chat-bankrot.ru)")
+            chat_token_data = register_in_chat_system(
+                email=user['email'],
+                amount=amount_value
+            )
+            
+            if chat_token_data:
+                print(f"[WEBHOOK] External chat token received: {chat_token_data['token']}, saving to DB")
+                save_external_chat_token(
                     user_id=int(user_id),
                     user_email=user['email'],
+                    token=chat_token_data['token'],
+                    expires_at=chat_token_data['expires_at'],
                     product_type=current_product_type
                 )
-            
-            if chat_token_data and current_product_type == 'chat':
-                send_chat_token_email(
-                    user_email=user['email'],
-                    user_name=user['full_name'],
-                    chat_token=chat_token_data['token'],
-                    product_type=current_product_type
-                )
+            else:
+                print(f"[WEBHOOK] ERROR: Failed to get token from external system (chat-bankrot.ru)")
+                print(f"[WEBHOOK] User will NOT receive chat access token!")
         
         if current_product_type in ['course', 'combo']:
             print(f"[WEBHOOK] Sending course credentials to {user['email']}")
@@ -523,29 +503,7 @@ def check_payment_status(event: Dict[str, Any], headers: Dict[str, str]) -> Dict
         })
     }
 
-def create_chat_token(user_id: int, user_email: str, product_type: str):
-    token = str(uuid.uuid4())
-    
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """INSERT INTO chat_tokens 
-                (user_id, email, token, product_type, expires_at) 
-                VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP + INTERVAL '30 days')
-                RETURNING token, expires_at""",
-                (user_id, user_email, token, product_type)
-            )
-            result = cur.fetchone()
-            conn.commit()
-            if result:
-                return {'token': result['token'], 'expires_at': result['expires_at']}
-            return None
-    except Exception as e:
-        print(f"Error creating chat token: {e}")
-        return None
-    finally:
-        conn.close()
+
 
 def save_external_chat_token(user_id: int, user_email: str, token: str, expires_at: datetime, product_type: str):
     '''Save external chat token (from bankrot-kurs.ru) to our database'''
@@ -809,7 +767,7 @@ def send_admin_notification(user_email: str, user_name: str, amount: float, paym
 
 def register_in_chat_system(email: str, amount: float):
     '''Call external bankrot chat webhook to register combo purchase and get token'''
-    webhook_url = 'https://functions.poehali.dev/66d27e23-0698-4d41-8708-9c7e34148508'
+    webhook_url = 'https://chat-bankrot.ru/api/register'
     api_key = 'bankrot_combo_secret_2025'
     
     try:
